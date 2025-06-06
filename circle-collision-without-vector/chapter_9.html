@@ -1,0 +1,513 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8"/>
+  </head>
+  <link rel="stylesheet" href="highlight/styles/github-dark.min.css">
+  <style>
+    code{
+      background-color:#D3D3D3;
+    }
+    .center{
+      margin-left:auto;
+      margin-right:auto;
+      display:block;
+    }
+    .hr1{
+        height:0.5em;background-color:lightgrey;
+    }
+    .dimdiv{
+      position:absolute;
+      top:0;
+      width:100%;
+      pointer-events: none;
+    }
+    .dimcode{
+      background-color:black;
+      opacity:0.625;
+      width:100%;
+      display:block;
+    }
+    .showcode{
+      width:100%;
+      opacity:0;
+      display:block;
+    }
+    .readborder{
+      border:0.25em solid black;
+    }
+    .copyborder{
+      border:0.5em dashed gray;
+    }
+    .codeParentDiv{
+      position:relative;
+      overflow-x:scroll;
+    }
+  </style>
+  <body>
+<table style="position:fixed;top:0%;left:0%;width:auto;height:100%;background-color:lightgrey">
+      <tr>
+        <td style="border: 1px solid black;">
+          <span><b>Attention:</b>Repository : <a href="https://github.com/shuffleandko/circle-collision-without-vector">https://github.com/shuffleandko/circle-collision-without-vector</a>. The correctness of this tutorial is not guaranteed, the context may be updated without notifications, and the author is not responsible for any consequences that copy or run the codes in the tutorial, if any.</span>
+          <hr/>
+          <span><b>Go to chapter: </b></span>
+          <select onChange="window.location.href=this.value">
+            <option value="chapter_1.html">Chapter 1 : Introduction</option>
+            <option value="chapter_2.html">Chapter 2 : Draw something on browsers using canvas element</option>
+            <option value="chapter_3.html">Chapter 3 : Move the circle</option>
+            <option value="chapter_4.html">Chapter 4 : Circle-circle collision detection</option>
+            <option value="chapter_5.html">Chapter 5 : Circle-circle collision response</option>
+            <option value="chapter_6.html">Chapter 6 : Use array to avoid repeating codes</option>
+            <option value="chapter_7.html">Chapter 7 : Circles and fixed circles collision</option>
+            <option value="chapter_8.html">Chapter 8 : Circles and fixed points, lines and fixed polygons collision</option>
+            <option value="chapter_9.html" selected disabled>Chapter 9 : Test all objects working together and remove debug drawings</option>
+          </select>
+          <hr/>
+          <button onclick="window.location.href='#top'">▲ Go back to top ▲</button>&nbsp<span><b>Move to section</b>:
+            <select onChange="window.location.href=this.value">
+              <option value="#section_1">9.1 Test all objects working together</option>
+              <option value="#section_2">9.2 Remove debug drawings response</option>
+            </select>
+          </span>
+        </td>
+      </tr>
+      <tr style="width:width:100%;height:100%;">
+        <td style="width:100%;height:100%;"><div style="background-color:white;overflow-x:auto;overflow-y:scroll;width:width:100%;height:100%;padding-left:0.5em;">
+          <div id="top"></div> 
+    <h1 style="text-align:center;">Chapter 9 : Test all objects working together and remove debug drawings</h1>
+    <hr class="hr1"/>
+    <h2 id="section_1">9.1 Test all objects working together</h2>
+    <p>At previous chapters, we created various of objects and tested individually, so to ensure if those objects work together perfectly, we would create the following canvas that contains various of objects at the same time:</p>
+    <iframe class="center" src="chapter_9_1_1.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <p>The following code is the canvas above:</p>
+<div class="codeParentDiv" style="height:205em"><div class="hljs copyborder" style="position:absolute;">
+        <pre><code><span class="hl">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
+&lt;script&gt;</span>
+<span class="hl">  const circleArray = [
+    {    
+      cx:80,
+      cy:80,
+      r:30,
+      m:Math.PI*30*30, //mass = area
+      vx:90,
+      vy:30
+    },
+    {    
+      cx:-40,
+      cy:-80,
+      r:40,
+      m:Math.PI*40*40, //mass = area
+      vx:90,
+      vy:-30
+    },
+    {    
+      cx:0,
+      cy:80,
+      r:10,
+      m:Math.PI*10*10, //mass = area
+      vx:0,
+      vy:0
+    }
+  ];
+
+  const fixedCircleArray = [
+    {    
+      cx:0,
+      cy:0,
+      r:200
+    },
+    {    
+      cx:0,
+      cy:-150,
+      r:20
+    }
+  ];
+
+  const fixedPolygonArray = [
+    {
+      x:[140,90,60,110],
+      y:[10,40,-10,-40],
+      isClosed:true
+    },
+    {
+      x:[-90,-150,-90],
+      y:[60,0,-60],
+      isClosed:false
+    }
+  ];
+
+  const canvas = document.getElementById("myCanvas");
+  const ctx = canvas.getContext("2d");
+  ctx.font="12px sans-serif";
+  ctx.textAlign="center";
+  const frameRate=60;
+
+  const intervalId=setInterval(function(){
+    //circle position update
+    for(const c of circleArray){
+        c.cx += c.vx * 1 / frameRate;
+        c.cy += c.vy * 1 / frameRate;
+    }
+
+    for(const fp of fixedPolygonArray){
+      //fixed point and circle check collision
+      for(let i=0;i < fp.x.length;i++){
+        for(const c2 of circleArray){
+          const dx=c2.cx-fp.x[i];
+          const dy=c2.cy-fp.y[i];
+          const vxFactor = c2.vx * dx + c2.vy * dy;
+          if( dx * dx + dy * dy <= c2.r * c2.r && vxFactor < 0){ //apply collision only if 2 circles touch and the direction of speed is correct
+            c2.vx -= 2 * dx * vxFactor / (dx * dx + dy * dy);
+            c2.vy -= 2 * dy * vxFactor / (dx * dx + dy * dy);
+          }
+        }
+      }
+      //line segment and circle collision
+      for(let i = 0 , j = 1 ; fp.isClosed ? i < fp.x.length : i < fp.x.length - 1 ; i++ , j = (i+1) % fp.x.length){
+        const lx = fp.x[j] - fp.x[i];
+        const ly = fp.y[j] - fp.y[i];
+        for(const c2 of circleArray){
+          if((c2.cx - fp.x[i]) * lx > -(c2.cy - fp.y[i]) * ly && (c2.cx - fp.x[j]) * lx < -(c2.cy - fp.y[j]) * ly){
+            const cxx1 = (c2.cx - fp.x[i]) * ly - (c2.cy - fp.y[i]) * lx;
+            if(cxx1 * cxx1 <= c2.r * c2.r * (lx * lx + ly * ly)){ //check if the circle touches the line segment
+            const relVx = c2.vx * ly - c2.vy * lx;
+              if((cxx1 > 0 && relVx < 0) || (0 > cxx1 && relVx > 0)){ //check if the circle is approaching to the line segmen
+                c2.vx -= 2 * ly * relVx / (ly * ly + lx * lx);
+                c2.vy += 2 * lx * relVx / (ly * ly + lx * lx);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    //fixed circle and circle check collision
+    for(const fc of fixedCircleArray){
+      for(const c2 of circleArray){
+        const dx=c2.cx-fc.cx;
+        const dy=c2.cy-fc.cy;
+        const vxFactor = c2.vx * dx + c2.vy * dy;
+        if( (dx * dx + dy * dy >= fc.r * fc.r && dx * dx + dy * dy <= (fc.r + c2.r)*(fc.r + c2.r) && vxFactor < 0) || (dx * dx + dy * dy <= fc.r * fc.r && dx * dx + dy * dy >= (fc.r - c2.r)*(fc.r - c2.r) && vxFactor > 0)){ //apply collision only if 2 circles touch and the direction of speed is correct
+          c2.vx -= 2 * dx * vxFactor / (dx * dx + dy * dy);
+          c2.vy -= 2 * dy * vxFactor / (dx * dx + dy * dy);
+        }
+      }
+    }
+
+    //circle check collision : find if d is smaller than (or equals to) r1+r2
+    for(let i = 0; i < circleArray.length ; i++){
+      const c1 = circleArray[i];
+      for(let j = i; j < circleArray.length ; j++){
+        const c2 = circleArray[j];
+        const dx=c2.cx-c1.cx;
+        const dy=c2.cy-c1.cy;
+        if(dx * dx + dy * dy <= (c1.r + c2.r)*(c1.r + c2.r)){ //find if d is smaller than (or equals to) r1+r2
+          const rel_c2vx = c2.vx - c1.vx;
+          const rel_c2vy = c2.vy - c1.vy;
+          if(rel_c2vx * dx + rel_c2vy * dy < 0){ //apply collision only when 2 circles are colliding instead of separating
+            c1.vx += 2 * dx * c2.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+            c1.vy += 2 * dy * c2.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+            c2.vx -= 2 * dx * c1.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+            c2.vy -= 2 * dy * c1.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+          }
+        }
+      }
+    }
+
+    //clear all drawings
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    //draw x and y axis
+    ctx.strokeStyle="lightgray";
+    ctx.beginPath();
+    ctx.moveTo(0,canvas.height/2);
+    ctx.lineTo(canvas.width,canvas.height/2);
+    ctx.moveTo(canvas.width/2,0);
+    ctx.lineTo(canvas.width/2,canvas.height);
+    ctx.stroke();
+    ctx.strokeStyle="black";
+
+    //draw border
+    ctx.beginPath();
+    ctx.rect(0,0,canvas.width,canvas.height);
+    ctx.stroke();
+
+    for(const fp of fixedPolygonArray){
+      //draw fixed point
+      for(let i=0;i < fp.x.length;i++){
+        ctx.beginPath();
+        ctx.fillStyle=ctx.strokeStyle="black";
+        ctx.fillText(fp.x[i].toFixed(1)+","+fp.y[i].toFixed(1),canvas.width/2+fp.x[i],canvas.height/2-fp.y[i]);
+        ctx.fillStyle=ctx.strokeStyle="gray";
+        ctx.arc(canvas.width/2+fp.x[i],canvas.height/2-fp.y[i],2,0,2*Math.PI);
+        ctx.fill();
+      }
+      //draw line segment
+      for(let i = 0 , j = 1 ; fp.isClosed ? i < fp.x.length : i < fp.x.length - 1 ; i++ , j = (i+1) % fp.x.length){
+        ctx.beginPath();
+        ctx.moveTo(canvas.width/2+fp.x[i],canvas.height/2-fp.y[i]);
+        ctx.lineTo(canvas.width/2+fp.x[j],canvas.height/2-fp.y[j]);
+        ctx.stroke();
+      }
+    }
+
+    //draw fixed circle
+    for(let i=0;i < fixedCircleArray.length;i++){
+        const fc=fixedCircleArray[i];
+        ctx.fillStyle=ctx.strokeStyle="gray";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+fc.cx,canvas.height/2-fc.cy,fc.r,0,2*Math.PI);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.fillText("FC"+i,canvas.width/2+fc.cx,canvas.height/2-fc.cy);
+        ctx.fillStyle=ctx.strokeStyle="black";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+fc.cx,canvas.height/2-fc.cy,2,0,2*Math.PI);
+        ctx.fill();
+    }
+
+    //draw circle
+    for(let i=0;i < circleArray.length;i++){
+        const c=circleArray[i];
+        ctx.fillStyle=ctx.strokeStyle="black";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+c.cx,canvas.height/2-c.cy,c.r,0,2*Math.PI);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.fillText(c.cx.toFixed(1)+","+c.cy.toFixed(1),canvas.width/2+c.cx,canvas.height/2-c.cy+16);
+        ctx.fillStyle=ctx.strokeStyle="blue";
+        ctx.moveTo(canvas.width/2+c.cx,canvas.height/2-c.cy);
+        ctx.lineTo(canvas.width/2+c.cx+c.vx,canvas.height/2-c.cy-c.vy);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+c.cx+c.vx,canvas.height/2-c.cy-c.vy,2,0,2*Math.PI);
+        ctx.fill();
+        ctx.fillText(c.vx.toFixed(1)+","+c.vy.toFixed(1),canvas.width/2+c.cx+c.vx,canvas.height/2-c.cy-c.vy-4);
+        ctx.fillStyle=ctx.strokeStyle="gray";
+        ctx.fillText("C"+i,canvas.width/2+c.cx,canvas.height/2-c.cy);
+        ctx.fillStyle=ctx.strokeStyle="black";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+c.cx,canvas.height/2-c.cy,2,0,2*Math.PI);
+        ctx.fill();
+    }
+  },1000/frameRate);</span>
+<span class="hl">&lt/script&gt</span></code></pre>
+      <div class="dimdiv">
+          <code class="dimcode">&nbsp;</code>
+      </div>
+    </div></div>
+    <p>The canvas should show 3 circles, rebounding between the circular wall and different kinds of fixed objects.</p>
+    <iframe id="iframe-index-debug-1" class="center" src="index-debug.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <br/><button class="center" onclick="document.getElementById('iframe-index-debug-1').src+='';">Reload</button>
+    <p>Great! It seems the various objects are working together perfectly!</p>
+    <hr class="hr1"/>
+    <h2 id="section_2">9.2 Remove debug drawings</h2>
+    <p>Now we may remove the debug drawings of the canvas (eg: positions, velocities):</p>
+<div class="codeParentDiv" style="height:183em"><div class="hljs copyborder" style="position:absolute;">
+        <pre><code><span class="hl">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
+&lt;script&gt;</span>
+<span class="hl">  const circleArray = [
+    {    
+      cx:80,
+      cy:80,
+      r:30,
+      m:Math.PI*30*30, //mass = area
+      vx:90,
+      vy:30
+    },
+    {    
+      cx:-40,
+      cy:-80,
+      r:40,
+      m:Math.PI*40*40, //mass = area
+      vx:90,
+      vy:-30
+    },
+    {    
+      cx:0,
+      cy:80,
+      r:10,
+      m:Math.PI*10*10, //mass = area
+      vx:0,
+      vy:0
+    }
+  ];
+
+  const fixedCircleArray = [
+    {    
+      cx:0,
+      cy:0,
+      r:200
+    },
+    {    
+      cx:0,
+      cy:-150,
+      r:20
+    }
+  ];
+
+  const fixedPolygonArray = [
+    {
+      x:[140,90,60,110],
+      y:[10,40,-10,-40],
+      isClosed:true
+    },
+    {
+      x:[-90,-150,-90],
+      y:[60,0,-60],
+      isClosed:false
+    }
+  ];
+
+  const canvas = document.getElementById("myCanvas");
+  const ctx = canvas.getContext("2d");
+  ctx.font="12px sans-serif";
+  ctx.textAlign="center";
+  const frameRate=60;
+
+  const intervalId=setInterval(function(){
+    //circle position update
+    for(const c of circleArray){
+        c.cx += c.vx * 1 / frameRate;
+        c.cy += c.vy * 1 / frameRate;
+    }
+
+    for(const fp of fixedPolygonArray){
+      //fixed point and circle check collision
+      for(let i=0;i < fp.x.length;i++){
+        for(const c2 of circleArray){
+          const dx=c2.cx-fp.x[i];
+          const dy=c2.cy-fp.y[i];
+          const vxFactor = c2.vx * dx + c2.vy * dy;
+          if( dx * dx + dy * dy <= c2.r * c2.r && vxFactor < 0){ //apply collision only if 2 circles touch and the direction of speed is correct
+            c2.vx -= 2 * dx * vxFactor / (dx * dx + dy * dy);
+            c2.vy -= 2 * dy * vxFactor / (dx * dx + dy * dy);
+          }
+        }
+      }
+      //line segment and circle collision
+      for(let i = 0 , j = 1 ; fp.isClosed ? i < fp.x.length : i < fp.x.length - 1 ; i++ , j = (i+1) % fp.x.length){
+        const lx = fp.x[j] - fp.x[i];
+        const ly = fp.y[j] - fp.y[i];
+        for(const c2 of circleArray){
+          if((c2.cx - fp.x[i]) * lx > -(c2.cy - fp.y[i]) * ly && (c2.cx - fp.x[j]) * lx < -(c2.cy - fp.y[j]) * ly){
+            const cxx1 = (c2.cx - fp.x[i]) * ly - (c2.cy - fp.y[i]) * lx;
+            if(cxx1 * cxx1 <= c2.r * c2.r * (lx * lx + ly * ly)){ //check if the circle touches the line segment
+            const relVx = c2.vx * ly - c2.vy * lx;
+              if((cxx1 > 0 && relVx < 0) || (0 > cxx1 && relVx > 0)){ //check if the circle is approaching to the line segmen
+                c2.vx -= 2 * ly * relVx / (ly * ly + lx * lx);
+                c2.vy += 2 * lx * relVx / (ly * ly + lx * lx);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    //fixed circle and circle check collision
+    for(const fc of fixedCircleArray){
+      for(const c2 of circleArray){
+        const dx=c2.cx-fc.cx;
+        const dy=c2.cy-fc.cy;
+        const vxFactor = c2.vx * dx + c2.vy * dy;
+        if( (dx * dx + dy * dy >= fc.r * fc.r && dx * dx + dy * dy <= (fc.r + c2.r)*(fc.r + c2.r) && vxFactor < 0) || (dx * dx + dy * dy <= fc.r * fc.r && dx * dx + dy * dy >= (fc.r - c2.r)*(fc.r - c2.r) && vxFactor > 0)){ //apply collision only if 2 circles touch and the direction of speed is correct
+          c2.vx -= 2 * dx * vxFactor / (dx * dx + dy * dy);
+          c2.vy -= 2 * dy * vxFactor / (dx * dx + dy * dy);
+        }
+      }
+    }
+
+    //circle check collision : find if d is smaller than (or equals to) r1+r2
+    for(let i = 0; i < circleArray.length ; i++){
+      const c1 = circleArray[i];
+      for(let j = i; j < circleArray.length ; j++){
+        const c2 = circleArray[j];
+        const dx=c2.cx-c1.cx;
+        const dy=c2.cy-c1.cy;
+        if(dx * dx + dy * dy <= (c1.r + c2.r)*(c1.r + c2.r)){ //find if d is smaller than (or equals to) r1+r2
+          const rel_c2vx = c2.vx - c1.vx;
+          const rel_c2vy = c2.vy - c1.vy;
+          if(rel_c2vx * dx + rel_c2vy * dy < 0){ //apply collision only when 2 circles are colliding instead of separating
+            c1.vx += 2 * dx * c2.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+            c1.vy += 2 * dy * c2.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+            c2.vx -= 2 * dx * c1.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+            c2.vy -= 2 * dy * c1.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+          }
+        }
+      }
+    }
+
+    //clear all drawings
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    //draw x and y axis
+    ctx.strokeStyle="lightgray";
+    ctx.beginPath();
+    ctx.moveTo(0,canvas.height/2);
+    ctx.lineTo(canvas.width,canvas.height/2);
+    ctx.moveTo(canvas.width/2,0);
+    ctx.lineTo(canvas.width/2,canvas.height);
+    ctx.stroke();
+    ctx.strokeStyle="black";
+
+    //draw border
+    ctx.beginPath();
+    ctx.rect(0,0,canvas.width,canvas.height);
+    ctx.stroke();
+
+    //draw fixed point and line segment
+    for(const fp of fixedPolygonArray){
+      //draw fixed point
+      for(let i=0;i < fp.x.length;i++){
+        ctx.beginPath();
+        ctx.fillStyle=ctx.strokeStyle="gray";
+        ctx.arc(canvas.width/2+fp.x[i],canvas.height/2-fp.y[i],2,0,2*Math.PI);
+        ctx.fill();
+      }
+      //draw line segment
+      for(let i = 0 , j = 1 ; fp.isClosed ? i < fp.x.length : i < fp.x.length - 1 ; i++ , j = (i+1) % fp.x.length){
+        ctx.beginPath();
+        ctx.moveTo(canvas.width/2+fp.x[i],canvas.height/2-fp.y[i]);
+        ctx.lineTo(canvas.width/2+fp.x[j],canvas.height/2-fp.y[j]);
+        ctx.stroke();
+      }
+    }
+
+    //draw fixed circle
+    for(let i=0;i < fixedCircleArray.length;i++){
+        const fc=fixedCircleArray[i];
+        ctx.fillStyle=ctx.strokeStyle="gray";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+fc.cx,canvas.height/2-fc.cy,fc.r,0,2*Math.PI);
+        ctx.stroke();
+    }
+
+    //draw circle
+    for(let i=0;i < circleArray.length;i++){
+        const c=circleArray[i];
+        ctx.fillStyle=ctx.strokeStyle="black";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+c.cx,canvas.height/2-c.cy,c.r,0,2*Math.PI);
+        ctx.stroke();
+    }
+  },1000/frameRate);</span>
+<span class="hl">&lt/script&gt</span></code></pre>
+      <div class="dimdiv">
+          <code class="dimcode">&nbsp;</code>
+      </div>
+    </div></div>
+    <p>Now the debug details such as positions and velocities should be removed:</p>
+    <iframe id="iframe-index-1" class="center" src="index.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <br/><button class="center" onclick="document.getElementById('iframe-index-1').src+='';">Reload</button>
+    <p>Congratulations! Finally we built a circle collision physics engine with some features! However, I believe this engine has rooms for improvement, for example : we may optimize the code, or add more features such as gravity and inelastic collision. Hope this tutorial can help others to build their more powerful physics engines!</p>
+        </div></td>
+      </tr>
+    </table>
+  </body>
+  <script src="highlight/highlight.min.js"></script>
+  <script>
+  document.querySelectorAll('.hl').forEach(el => {
+    hljs.highlightElement(el);
+  });
+  </script>
+</html>

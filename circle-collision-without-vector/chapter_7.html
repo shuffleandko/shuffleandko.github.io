@@ -1,0 +1,2103 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8"/>
+  </head>
+  <link rel="stylesheet" href="highlight/styles/github-dark.min.css">
+  <style>
+    code{
+      background-color:#D3D3D3;
+    }
+    .center{
+      margin-left:auto;
+      margin-right:auto;
+      display:block;
+    }
+    .hr1{
+        height:0.5em;background-color:lightgrey;
+    }
+    .dimdiv{
+      position:absolute;
+      top:0;
+      width:100%;
+      pointer-events: none;
+    }
+    .dimcode{
+      background-color:black;
+      opacity:0.625;
+      width:100%;
+      display:block;
+    }
+    .showcode{
+      width:100%;
+      opacity:0;
+      display:block;
+    }
+    .readborder{
+      border:0.25em solid black;
+    }
+    .copyborder{
+      border:0.5em dashed gray;
+    }
+    .codeParentDiv{
+      position:relative;
+      overflow-x:scroll;
+    }
+  </style>
+  <body>
+<table style="position:fixed;top:0%;left:0%;width:auto;height:100%;background-color:lightgrey">
+      <tr>
+        <td style="border: 1px solid black;">
+          <span><b>Attention:</b>Repository : <a href="https://github.com/shuffleandko/circle-collision-without-vector">https://github.com/shuffleandko/circle-collision-without-vector</a>. The correctness of this tutorial is not guaranteed, the context may be updated without notifications, and the author is not responsible for any consequences that copy or run the codes in the tutorial, if any.</span>
+          <hr/>
+          <span><b>Go to chapter: </b></span>
+          <select onChange="window.location.href=this.value">
+            <option value="chapter_1.html">Chapter 1 : Introduction</option>
+            <option value="chapter_2.html">Chapter 2 : Draw something on browsers using canvas element</option>
+            <option value="chapter_3.html">Chapter 3 : Move the circle</option>
+            <option value="chapter_4.html">Chapter 4 : Circle-circle collision detection</option>
+            <option value="chapter_5.html">Chapter 5 : Circle-circle collision response</option>
+            <option value="chapter_6.html">Chapter 6 : Use array to avoid repeating codes</option>
+            <option value="chapter_7.html" selected disabled>Chapter 7 : Circles and fixed circles collision</option>
+            <option value="chapter_8.html">Chapter 8 : Circles and fixed points, lines and fixed polygons collision</option>
+            <option value="chapter_9.html">Chapter 9 : Test all objects working together and remove debug drawings</option>
+          </select>
+          <hr/>
+          <button onclick="window.location.href='#top'">▲ Go back to top ▲</button>&nbsp<span><b>Move to section</b>:
+            <select onChange="window.location.href=this.value">
+              <option value="#section_1">7.1 Add and draw a fixed circles</option>
+              <option value="#section_2">7.2 Circle and fixed circle collision response</option>
+              <option value="#section_3">7.3 Circle and fixed circle internal (inner shell) collision response</option>
+            </select>
+          </span>
+        </td>
+      </tr>
+      <tr style="width:width:100%;height:100%;">
+        <td style="width:100%;height:100%;"><div style="background-color:white;overflow-x:auto;overflow-y:scroll;width:width:100%;height:100%;padding-left:0.5em;">
+          <div id="top"></div> 
+    <h1 style="text-align:center;">Chapter 7 : Circles and fixed circles collision</h1>
+    <hr class="hr1"/>
+    <h2 id="section_1">7.1 Add and draw a fixed circle</h2>
+    <p>At former chapters, we implemented circle-circle collisions. Now we would add more types of objects to the canvas. The first thing to add is <b>fixed circle</b>, which doesn't move at all and circles would rebound when collide with it.</p>
+    <p>This time we start with a single circle as the following:</p>
+<div class="codeParentDiv" style="height:90em"><div class="hljs copyborder" style="position:absolute;">
+        <pre><code><span class="hl">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
+&lt;script&gt;</span>
+<span class="hl">  const circleArray = [
+    {
+      cx:-60,
+      cy:-60,
+      r:0,
+      m:Math.PI*50*50, //mass = area
+      vx:15,
+      vy:30
+    }
+  ];
+
+  const canvas = document.getElementById("myCanvas");
+  const ctx = canvas.getContext("2d");
+  ctx.font="12px sans-serif";
+  ctx.textAlign="center";
+  const frameRate=60;
+
+  setInterval(function(){
+    //circle position update
+    for(const c of circleArray){
+        c.cx += c.vx * 1 / frameRate;
+        c.cy += c.vy * 1 / frameRate;
+    }
+
+    //circle check collision : find if d is smaller than (or equals to) r1+r2
+    for(let i = 0; i < circleArray.length ; i++){
+      const c1 = circleArray[i];
+      for(let j = i; j < circleArray.length ; j++){
+        const c2 = circleArray[j];
+        const dx=c2.cx-c1.cx;
+        const dy=c2.cy-c1.cy;
+        if(dx * dx + dy * dy <= (c1.r + c2.r)*(c1.r + c2.r)){ //find if d is smaller than (or equals to) r1+r2
+          const rel_c2vx = c2.vx - c1.vx;
+          const rel_c2vy = c2.vy - c1.vy;
+          if(rel_c2vx * dx + rel_c2vy * dy < 0){ //apply collision only when 2 circles are colliding instead of separating
+            c1.vx += 2 * dx * c2.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+            c1.vy += 2 * dy * c2.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+            c2.vx -= 2 * dx * c1.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+            c2.vy -= 2 * dy * c1.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+          }
+        }
+      }
+    }
+
+    //clear all drawings
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    //draw x and y axis
+    ctx.strokeStyle="lightgray";
+    ctx.beginPath();
+    ctx.moveTo(0,canvas.height/2);
+    ctx.lineTo(canvas.width,canvas.height/2);
+    ctx.moveTo(canvas.width/2,0);
+    ctx.lineTo(canvas.width/2,canvas.height);
+    ctx.stroke();
+    ctx.strokeStyle="black";
+
+    //draw border
+    ctx.beginPath();
+    ctx.rect(0,0,canvas.width,canvas.height);
+    ctx.stroke();
+
+    //draw circle
+    for(let i=0;i < circleArray.length;i++){
+        const c=circleArray[i];
+        ctx.fillStyle=ctx.strokeStyle="black";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+c.cx,canvas.height/2-c.cy,c.r,0,2*Math.PI);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.fillText(c.cx.toFixed(1)+","+c.cy.toFixed(1),canvas.width/2+c.cx,canvas.height/2-c.cy+16);
+        ctx.fillStyle=ctx.strokeStyle="blue";
+        ctx.moveTo(canvas.width/2+c.cx,canvas.height/2-c.cy);
+        ctx.lineTo(canvas.width/2+c.cx+c.vx,canvas.height/2-c.cy-c.vy);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+c.cx+c.vx,canvas.height/2-c.cy-c.vy,2,0,2*Math.PI);
+        ctx.fill();
+        ctx.fillText(c.vx.toFixed(1)+","+c.vy.toFixed(1),canvas.width/2+c.cx+c.vx,canvas.height/2-c.cy-c.vy-4);
+        ctx.fillStyle=ctx.strokeStyle="gray";
+        ctx.fillText("C"+i,canvas.width/2+c.cx,canvas.height/2-c.cy);
+        ctx.fillStyle=ctx.strokeStyle="black";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+c.cx,canvas.height/2-c.cy,2,0,2*Math.PI);
+        ctx.fill();
+    }
+  },1000/frameRate);</span>
+<span class="hl">&lt/script&gt</span></code></pre>
+    </div></div>
+    <p>The canvas should show only a single circle moving as the following:</p>
+    <iframe id="iframe-chapter_7_1_1-1" class="center" src="chapter_7_1_1.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <br/><button class="center" onclick="document.getElementById('iframe-chapter_7_1_1-1').src+='';">Reload</button>
+    <p>Now we would add an array with a fixed circle : <code>fixedCircleArray</code> :</p>
+<div class="codeParentDiv" style="height:10em"><div class="hljs readborder" style="position:absolute;">
+        <pre><code><span class="hl">const fixedCircleArray=[
+  {
+    cx:45,
+    cy:60,
+    r:20
+  }
+];</span></code></pre>
+    </div></div>
+    <p>The fixed circle is similar to movable circles except it has no <code>vx</code> and <code>vy</code>, also it doesn't need <code>m</code>.</p>
+    <p>Also we need to add codes to draw the fixed circles:</p>
+    <div class="codeParentDiv" style="height:18em"><div class="hljs readborder" style="position:absolute;">
+        <pre><code><span class="hl">//draw fixed circle
+for(let i=0;i < fixedCircleArray.length;i++){
+    const fc=fixedCircleArray[i];
+    ctx.fillStyle=ctx.strokeStyle="gray";
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+fc.cx,canvas.height/2-fc.cy,fc.r,0,2*Math.PI);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.fillText("FC"+i,canvas.width/2+fc.cx,canvas.height/2-fc.cy);
+    ctx.fillStyle=ctx.strokeStyle="black";
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+fc.cx,canvas.height/2-fc.cy,2,0,2*Math.PI);
+    ctx.fill();
+}</span></code></pre>
+    </div></div>
+    <p>We use prefix <b>'FC'</b> (fixed circle) to identify it. Then we add the codes above into the example:</p>
+    <div class="codeParentDiv" style="height:111em"><div class="hljs copyborder" style="position:absolute;">   
+        <pre><code><span class="hl">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
+&lt;script&gt;</span>
+<span class="hl">      const circleArray = [
+    {    
+      cx:135,
+      cy:-90,
+      r:30,
+      m:Math.PI*30*30, //mass = area
+      vx:-45,
+      vy:60
+    }
+  ];
+
+  const fixedCircleArray = [
+    {
+      cx:45,
+      cy:60,
+      r:20
+    }
+  ];
+
+  const canvas = document.getElementById("myCanvas");
+  const ctx = canvas.getContext("2d");
+  ctx.font="12px sans-serif";
+  ctx.textAlign="center";
+  const frameRate=60;
+
+  setInterval(function(){
+    //circle position update
+    for(const c of circleArray){
+        c.cx += c.vx * 1 / frameRate;
+        c.cy += c.vy * 1 / frameRate;
+    }
+
+    //circle check collision : find if d is smaller than (or equals to) r1+r2
+    for(let i = 0; i < circleArray.length ; i++){
+      const c1 = circleArray[i];
+      for(let j = i; j < circleArray.length ; j++){
+        const c2 = circleArray[j];
+        const dx=c2.cx-c1.cx;
+        const dy=c2.cy-c1.cy;
+        if(dx * dx + dy * dy <= (c1.r + c2.r)*(c1.r + c2.r)){ //find if d is smaller than (or equals to) r1+r2
+          const rel_c2vx = c2.vx - c1.vx;
+          const rel_c2vy = c2.vy - c1.vy;
+          if(rel_c2vx * dx + rel_c2vy * dy < 0){ //apply collision only when 2 circles are colliding instead of separating
+            c1.vx += 2 * dx * c2.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+            c1.vy += 2 * dy * c2.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+            c2.vx -= 2 * dx * c1.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+            c2.vy -= 2 * dy * c1.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+          }
+        }
+      }
+    }
+
+    //clear all drawings
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    //draw x and y axis
+    ctx.strokeStyle="lightgray";
+    ctx.beginPath();
+    ctx.moveTo(0,canvas.height/2);
+    ctx.lineTo(canvas.width,canvas.height/2);
+    ctx.moveTo(canvas.width/2,0);
+    ctx.lineTo(canvas.width/2,canvas.height);
+    ctx.stroke();
+    ctx.strokeStyle="black";
+
+    //draw border
+    ctx.beginPath();
+    ctx.rect(0,0,canvas.width,canvas.height);
+    ctx.stroke();
+
+    //draw fixed circle
+    for(let i=0;i < fixedCircleArray.length;i++){
+        const fc=fixedCircleArray[i];
+        ctx.fillStyle=ctx.strokeStyle="gray";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+fc.cx,canvas.height/2-fc.cy,fc.r,0,2*Math.PI);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.fillText("FC"+i,canvas.width/2+fc.cx,canvas.height/2-fc.cy);
+        ctx.fillStyle=ctx.strokeStyle="black";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+fc.cx,canvas.height/2-fc.cy,2,0,2*Math.PI);
+        ctx.fill();
+    }
+
+    //draw circle
+    for(let i=0;i < circleArray.length;i++){
+        const c=circleArray[i];
+        ctx.fillStyle=ctx.strokeStyle="black";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+c.cx,canvas.height/2-c.cy,c.r,0,2*Math.PI);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.fillText(c.cx.toFixed(1)+","+c.cy.toFixed(1),canvas.width/2+c.cx,canvas.height/2-c.cy+16);
+        ctx.fillStyle=ctx.strokeStyle="blue";
+        ctx.moveTo(canvas.width/2+c.cx,canvas.height/2-c.cy);
+        ctx.lineTo(canvas.width/2+c.cx+c.vx,canvas.height/2-c.cy-c.vy);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+c.cx+c.vx,canvas.height/2-c.cy-c.vy,2,0,2*Math.PI);
+        ctx.fill();
+        ctx.fillText(c.vx.toFixed(1)+","+c.vy.toFixed(1),canvas.width/2+c.cx+c.vx,canvas.height/2-c.cy-c.vy-4);
+        ctx.fillStyle=ctx.strokeStyle="gray";
+        ctx.fillText("C"+i,canvas.width/2+c.cx,canvas.height/2-c.cy);
+        ctx.fillStyle=ctx.strokeStyle="black";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+c.cx,canvas.height/2-c.cy,2,0,2*Math.PI);
+        ctx.fill();
+    }
+  },1000/frameRate);</span>
+<span class="hl">&lt/script&gt</span></code></pre>
+        <div class="dimdiv">
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+        </div>
+     </div></div>
+    <p>Now the canvas would show a moving circle and a static circle:</p> 
+    <iframe id="iframe-chapter_7_1_2-1" class="center" src="chapter_7_1_2.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <br/><button class="center" onclick="document.getElementById('iframe-chapter_7_1_2-1').src+='';">Reload</button>
+    <p>Now the movable circle just passes through the fixed circle instead of colliding with it, it is normal because we have not implement the collision code yet! We would implement it at later sections.</p>
+    <hr class="hr1"/>
+    <h2 id="section_2">7.2 Circle and fixed circle collision response</h2>
+    <p>So how would we simulate movablle circle and fixed circle collision? The idea is : <b>when a movable circle collides with a fixed circle, it behaves as if colliding another movable circles with infinity mass</b>! What does it mean?</p>
+    <p>First, let's see the following 3 canvas, which the mass (<code>c1.m</code>) of circle 1 (C1) increases from left to right:</p>
+    <table border="1" style="margin-left:auto;margin-right:auto;">
+      <th>Mass of circle 1 (C1) = π20<sup>2</sup></th>
+      <th>Mass of circle 1 (C1) = π20<sup>2</sup> * 10</th>
+      <th>Mass of circle 1 (C1) = π20<sup>2</sup> * 100</th>
+      <tr>
+        <td>
+          <iframe id="iframe-chapter_7_2_1-1" src="chapter_7_2_1.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+        <td>
+          <iframe id="iframe-chapter_7_2_2-1" src="chapter_7_2_2.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+        <td>
+          <iframe id="iframe-chapter_7_2_3-1" src="chapter_7_2_3.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+      </tr>
+    </table>
+    <br/><button class="center" onclick="document.getElementById('iframe-chapter_7_2_1-1').src+='';document.getElementById('iframe-chapter_7_2_2-1').src+='';document.getElementById('iframe-chapter_7_2_3-1').src+='';">Reload</button>
+    <p>We can see, when the mass of circle 1 (C1) increases, circle 2 (C2) becomes moving slower after collision. At the last canvas, circle 1 (C1) almost becomes not moving, which looks as if circle 2 (C2) colliding with a fixed obstacle!</p>
+    <p>So the concept : assume <code>m</code> of circle 1 (C1) is <b>infinity</b>! Let's start coding for fixed circles! Recall the collision response formulae of circle 1 (C1) before:</p>
+    <table border="1" style="margin-left:auto;margin-right:auto;">
+      <th>Circle 1 (C1):</th>
+      <tr>
+        <td>
+          <table style="margin-left:auto;margin-right:auto;text-align:center;">
+            <tr>
+              <td rowspan="2">c2.vx = c2.vx - </td>
+              <td style="border-bottom:1px solid;">2 * dx * c1.m * (rel_vx * dx + rel_vy * dy)</td>
+            </tr>
+            <tr>
+              <td>(dx * dx + dy * dy) * (c1.m + c2.m)</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <table style="margin-left:auto;margin-right:auto;text-align:center;">
+            <tr>
+              <td rowspan="2">c2.vy = c2.vy - </td>
+              <td style="border-bottom:1px solid;">2 * dy * c1.m * (rel_vx * dx + rel_vy * dy)</td>
+            </tr>
+            <tr>
+              <td>(dx * dx + dy * dy) * (c1.m + c2.m)</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+    <p>We may simulate fixed circles as if a movable circle with infinity mass. Substitute infinity into the formula like the following:</p>
+    <table border="1" style="margin-left:auto;margin-right:auto;">
+      <th>Circle 1 (C1):</th>
+      <tr>
+        <td>
+          <table style="margin-left:auto;margin-right:auto;text-align:center;">
+            <tr>
+              <td rowspan="2">c2.vx = c2.vx - </td>
+              <td style="border-bottom:1px solid;">2 * dx * <b>∞</b> * (rel_vx * dx + rel_vy * dy)</td>
+            </tr>
+            <tr>
+              <td>(dx * dx + dy * dy) * (<b>∞</b> + c2.m)</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <table style="margin-left:auto;margin-right:auto;text-align:center;">
+            <tr>
+              <td rowspan="2">c2.vy = c2.vy - </td>
+              <td style="border-bottom:1px solid;">2 * dy * <b>∞</b> * (rel_vx * dx + rel_vy * dy)</td>
+            </tr>
+            <tr>
+              <td>(dx * dx + dy * dy) * (<b>∞</b> + c2.m)</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+    <p>But wait! Isn't the new <code>c2.vx</code> and <code>c2.vy</code> becomes ∞/∞?</p>
+    <p>Not really! But first, we need to slightly transform the formulae: divide both the upper and lower part of the fraction by <code>c1.m</code>:</p>
+    <table border="1" style="margin-left:auto;margin-right:auto;">
+      <th>Circle 1 (C1):</th>
+      <tr>
+        <td>
+          <table style="margin-left:auto;margin-right:auto;text-align:center;">
+            <tr>
+              <td rowspan="2">c2.vx = c2.vx - </td>
+              <td style="border-bottom:1px solid;">2 * dx * c1.m * (rel_vx * dx + rel_vy * dy) <b>/ c1.m</b></td>
+            </tr>
+            <tr>
+              <td>(dx * dx + dy * dy) * (c1.m + c2.m) <b>/ c1.m</b></td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <table style="margin-left:auto;margin-right:auto;text-align:center;">
+            <tr>
+              <td rowspan="2">c2.vy = c2.vy - </td>
+              <td style="border-bottom:1px solid;">2 * dy * c1.m * (rel_vx * dx + rel_vy * dy) <b>/ c1.m</b></td>
+            </tr>
+            <tr>
+              <td>(dx * dx + dy * dy) * (c1.m + c2.m) <b>/ c1.m</b></td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+    <p>Slightly change the position of the term <b>'/ c1.m'</b>:</p>
+    <table border="1" style="margin-left:auto;margin-right:auto;">
+      <th>Circle 1 (C1):</th>
+      <tr>
+        <td>
+          <table style="margin-left:auto;margin-right:auto;text-align:center;">
+            <tr>
+              <td rowspan="2">c2.vx = c2.vx - </td>
+              <td style="border-bottom:1px solid;">2 * dx * <b>c1.m / c1.m</b> * (rel_vx * dx + rel_vy * dy)</td>
+            </tr>
+            <tr>
+              <td>(dx * dx + dy * dy) * (<b>c1.m / c1.m + c2.m / c1.m</b>)</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <table style="margin-left:auto;margin-right:auto;text-align:center;">
+            <tr>
+              <td rowspan="2">c1.vy = c1.vy - </td>
+              <td style="border-bottom:1px solid;">2 * dy * <b>c1.m / c1.m</b> * (rel_vx * dx + rel_vy * dy)</td>
+            </tr>
+            <tr>
+              <td>(dx * dx + dy * dy) * (<b>c1.m / c1.m + c2.m / c1.m</b>)</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+    <p>Simplify the formulae above:</p>
+    <table border="1" style="margin-left:auto;margin-right:auto;">
+      <th>Circle 1 (C1):</th>
+      <tr>
+        <td>
+          <table style="margin-left:auto;margin-right:auto;text-align:center;">
+            <tr>
+              <td rowspan="2">c2.vx = c2.vx - </td>
+              <td style="border-bottom:1px solid;">2 * dx * (rel_vx * dx + rel_vy * dy)</td>
+            </tr>
+            <tr>
+              <td>(dx * dx + dy * dy) * (<b>c1.m / c1.m + c2.m / c1.m</b>)</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <table style="margin-left:auto;margin-right:auto;text-align:center;">
+            <tr>
+              <td rowspan="2">c2.vy = c2.vy - </td>
+              <td style="border-bottom:1px solid;">2 * dy * (rel_vx * dx + rel_vy * dy)</td>
+            </tr>
+            <tr>
+              <td>(dx * dx + dy * dy) * (<b>c1.m / c1.m + c2.m / c1.m</b>)</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+    <p>The core of this section is here : <b>When c2.m tends to infinity, c2.m / c1.m tends to 0 (because c2.m is finite), as if 1 / ∞ tends to 0</b>! So the formulae can furthur simpified as:</p>
+    <table border="1" style="margin-left:auto;margin-right:auto;">
+      <th>Circle 1 (C1):</th>
+      <tr>
+        <td>
+          <table style="margin-left:auto;margin-right:auto;text-align:center;">
+            <tr>
+              <td rowspan="2">c2.vx = c2.vx - </td>
+              <td style="border-bottom:1px solid;">2 * dx * (rel_vx * dx + rel_vy * dy)</td>
+            </tr>
+            <tr>
+              <td>(dx * dx + dy * dy)</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <table style="margin-left:auto;margin-right:auto;text-align:center;">
+            <tr>
+              <td rowspan="2">c2.vy = c2.vy - </td>
+              <td style="border-bottom:1px solid;">2 * dy * (rel_vx * dx + rel_vy * dy)</td>
+            </tr>
+            <tr>
+              <td>(dx * dx + dy * dy)</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table> 
+    <p>Recall the collision detection and response handling code of 2 movable circles :</p>
+<div class="codeParentDiv" style="height:22em"><div class="hljs readborder" style="position:absolute;">
+        <pre><code><span class="hl">//circle check collision : find if d is smaller than (or equals to) r1+r2
+for(let i = 0; i < circleArray.length ; i++){
+  const c1 = circleArray[i];
+  for(let j = i; j < circleArray.length ; j++){
+    const c2 = circleArray[j];
+    const dx=c2.cx-c1.cx;
+    const dy=c2.cy-c1.cy;
+    if(dx * dx + dy * dy <= (c1.r + c2.r)*(c1.r + c2.r)){ //find if d is smaller than (or equals to) r1+r2
+      const rel_c2vx = c2.vx - c1.vx;
+      const rel_c2vy = c2.vy - c1.vy;
+      if(rel_c2vx * dx + rel_c2vy * dy < 0){ //apply collision only when 2 circles are colliding instead of separating
+        c1.vx += 2 * dx * c2.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+        c1.vy += 2 * dy * c2.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+        c2.vx -= 2 * dx * c1.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+        c2.vy -= 2 * dy * c1.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+      }
+    }
+  }
+}</span></code></pre>
+    </div></div>
+    <p>To change it to circle and fixed circle collision code, We would modify it by:</p>
+    <ul>
+      <li>Replacing the for loop that circle 1 (C1) vs circle 2 (C2) with for loop that circle vs fixed circle</li>
+      <li>Replacing <code>rel_vx</code> with <code>c2.vx</code> also <code>rel_vy</code> with <code>c2.vy</code>, because fixed circle has no velocities
+      <li>Edit the collision response formula</li>
+    </ul>
+    <p>The circle and fixed circle collision code becomes:</p>
+<div class="codeParentDiv" style="height:16em"><div class="hljs readborder" style="position:absolute;">
+        <pre><code><span class="hl">//fixed circle and circle check collision
+for(const fc of fixedCircleArray){
+  for(const c2 of circleArray){
+    const dx=c2.cx-fc.cx;
+    const dy=c2.cy-fc.cy;
+    if(dx * dx + dy * dy <= (fc.r + c2.r)*(fc.r + c2.r)){ //find if d is smaller than (or equals to) r1+r2
+      if(c2.vx * dx + c2.vy * dy < 0){ //apply collision only when 2 circles are colliding instead of separating
+        c2.vx -= 2 * dx * (c2.vx * dx + c2.vy * dy) / (dx * dx + dy * dy);
+        c2.vy -= 2 * dy * (c2.vx * dx + c2.vy * dy) / (dx * dx + dy * dy);
+      }
+    }
+  }
+}</span></code></pre>
+    </div></div>
+    <p>But wait! The code has a problem: <code>c2.vx</code> would be modified before <code>c2.vy</code> updates, which <code>c2.vy</code> needs old <code>c2.vx</code> to update!</p>
+    <p>In order to solve the problem, we would create a new variable : <code>vxFactor</code> (indicate it is related to <code>vx</code>), to store the value of <code>c2.vx * dx + c2.vy * dy</code> first:</p>
+<div class="codeParentDiv" style="height:17em"><div class="hljs readborder" style="position:absolute;">
+        <pre><code><span class="hl">//fixed circle and circle check collision
+for(const fc of fixedCircleArray){
+  for(const c2 of circleArray){
+    const dx=c2.cx-fc.cx;
+    const dy=c2.cy-fc.cy;
+    if(dx * dx + dy * dy <= (fc.r + c2.r)*(fc.r + c2.r)){ //find if d is smaller than (or equals to) r1+r2
+      const vxFactor = c2.vx * dx + c2.vy * dy;
+      if(vxFactor < 0){ //apply collision only when 2 circles are colliding instead of separating
+        c2.vx -= 2 * dx * vxFactor / (dx * dx + dy * dy);
+        c2.vy -= 2 * dy * vxFactor / (dx * dx + dy * dy);
+      }
+    }
+  }
+}</span></code></pre>
+    </div></div>
+    <p>Now we may add the code to the canvas:</p>
+<div class="codeParentDiv" style="height:126em"><div class="hljs copyborder" style="position:absolute;">   
+        <pre><code><span class="hl">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
+&lt;script&gt;</span>
+<span class="hl">      const circleArray = [
+    {    
+      cx:135,
+      cy:-90,
+      r:30,
+      m:Math.PI*30*30, //mass = area
+      vx:-45,
+      vy:60
+    }
+  ];
+
+  const fixedCircleArray = [
+    {
+      cx:45,
+      cy:60,
+      r:20
+    }
+  ];
+
+  const canvas = document.getElementById("myCanvas");
+  const ctx = canvas.getContext("2d");
+  ctx.font="12px sans-serif";
+  ctx.textAlign="center";
+  const frameRate=60;
+
+  setInterval(function(){
+    //circle position update
+    for(const c of circleArray){
+        c.cx += c.vx * 1 / frameRate;
+        c.cy += c.vy * 1 / frameRate;
+    }
+
+    //fixed circle and circle check collision
+    for(const fc of fixedCircleArray){
+      for(const c2 of circleArray){
+        const dx=c2.cx-fc.cx;
+        const dy=c2.cy-fc.cy;
+        if(dx * dx + dy * dy <= (fc.r + c2.r)*(fc.r + c2.r)){ //find if d is smaller than (or equals to) r1+r2
+          const vxFactor = c2.vx * dx + c2.vy * dy;
+          if(vxFactor < 0){ //apply collision only when 2 circles are colliding instead of separating
+            c2.vx -= 2 * dx * vxFactor / (dx * dx + dy * dy);
+            c2.vy -= 2 * dy * vxFactor / (dx * dx + dy * dy);
+          }
+        }
+      }
+    }
+
+    //circle check collision : find if d is smaller than (or equals to) r1+r2
+    for(let i = 0; i < circleArray.length ; i++){
+      const c1 = circleArray[i];
+      for(let j = i; j < circleArray.length ; j++){
+        const c2 = circleArray[j];
+        const dx=c2.cx-c1.cx;
+        const dy=c2.cy-c1.cy;
+        if(dx * dx + dy * dy <= (c1.r + c2.r)*(c1.r + c2.r)){ //find if d is smaller than (or equals to) r1+r2
+          const rel_c2vx = c2.vx - c1.vx;
+          const rel_c2vy = c2.vy - c1.vy;
+          if(rel_c2vx * dx + rel_c2vy * dy < 0){ //apply collision only when 2 circles are colliding instead of separating
+            c1.vx += 2 * dx * c2.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+            c1.vy += 2 * dy * c2.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+            c2.vx -= 2 * dx * c1.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+            c2.vy -= 2 * dy * c1.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+          }
+        }
+      }
+    }
+
+    //clear all drawings
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    //draw x and y axis
+    ctx.strokeStyle="lightgray";
+    ctx.beginPath();
+    ctx.moveTo(0,canvas.height/2);
+    ctx.lineTo(canvas.width,canvas.height/2);
+    ctx.moveTo(canvas.width/2,0);
+    ctx.lineTo(canvas.width/2,canvas.height);
+    ctx.stroke();
+    ctx.strokeStyle="black";
+
+    //draw border
+    ctx.beginPath();
+    ctx.rect(0,0,canvas.width,canvas.height);
+    ctx.stroke();
+
+    //draw fixed circle
+    for(let i=0;i < fixedCircleArray.length;i++){
+        const fc=fixedCircleArray[i];
+        ctx.fillStyle=ctx.strokeStyle="gray";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+fc.cx,canvas.height/2-fc.cy,fc.r,0,2*Math.PI);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.fillText("FC"+i,canvas.width/2+fc.cx,canvas.height/2-fc.cy);
+        ctx.fillStyle=ctx.strokeStyle="black";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+fc.cx,canvas.height/2-fc.cy,2,0,2*Math.PI);
+        ctx.fill();
+    }
+
+    //draw circle
+    for(let i=0;i < circleArray.length;i++){
+        const c=circleArray[i];
+        ctx.fillStyle=ctx.strokeStyle="black";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+c.cx,canvas.height/2-c.cy,c.r,0,2*Math.PI);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.fillText(c.cx.toFixed(1)+","+c.cy.toFixed(1),canvas.width/2+c.cx,canvas.height/2-c.cy+16);
+        ctx.fillStyle=ctx.strokeStyle="blue";
+        ctx.moveTo(canvas.width/2+c.cx,canvas.height/2-c.cy);
+        ctx.lineTo(canvas.width/2+c.cx+c.vx,canvas.height/2-c.cy-c.vy);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+c.cx+c.vx,canvas.height/2-c.cy-c.vy,2,0,2*Math.PI);
+        ctx.fill();
+        ctx.fillText(c.vx.toFixed(1)+","+c.vy.toFixed(1),canvas.width/2+c.cx+c.vx,canvas.height/2-c.cy-c.vy-4);
+        ctx.fillStyle=ctx.strokeStyle="gray";
+        ctx.fillText("C"+i,canvas.width/2+c.cx,canvas.height/2-c.cy);
+        ctx.fillStyle=ctx.strokeStyle="black";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+c.cx,canvas.height/2-c.cy,2,0,2*Math.PI);
+        ctx.fill();
+    }
+  },1000/frameRate);</span>
+<span class="hl">&lt/script&gt</span></code></pre>
+        <div class="dimdiv">
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+        </div>
+     </div></div>
+    <p>Now the canvas should show the moving circles rebound when colliding with the fixed circle, also the fixed circle doesn't move at all when colliding.</p>
+    <iframe id="iframe-chapter_7_2_4-1" class="center" src="chapter_7_2_4.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <br/><button class="center" onclick="document.getElementById('iframe-chapter_7_2_4-1').src+='';">Reload</button>
+    <p>Great! We have implemented circle and fixed circle collision successfully!</p>
+    <hr class="hr1"/>
+    <h2 id="section_3">7.3 Circle and fixed circle internal (inner shell) collision response</h2>
+    <p>At last section, we implemented collision between circle and outer shell of fixed collision. To reuse the codes and add more features, we may add the code of collision between <b>circle and inner shell of fixed collision</b>.</p>
+    <p>Modify the properties of circle and fixed circle so that the circle is initially inside the fixed circle:</p>
+<div class="codeParentDiv" style="height:126em"><div class="hljs copyborder" style="position:absolute;">   
+        <pre><code><span class="hl">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
+&lt;script&gt;</span>
+<span class="hl">      const circleArray = [
+    {    
+      cx:0,
+      cy:0,
+      r:30,
+      m:Math.PI*30*30, //mass = area
+      vx:60,
+      vy:0
+    }
+  ];
+
+  const fixedCircleArray = [
+    {
+      cx:0,
+      cy:0,
+      r:150
+    }
+  ];
+
+  const canvas = document.getElementById("myCanvas");
+  const ctx = canvas.getContext("2d");
+  ctx.font="12px sans-serif";
+  ctx.textAlign="center";
+  const frameRate=60;
+
+  setInterval(function(){
+    //circle position update
+    for(const c of circleArray){
+        c.cx += c.vx * 1 / frameRate;
+        c.cy += c.vy * 1 / frameRate;
+    }
+
+    //fixed circle and circle check collision
+    for(const fc of fixedCircleArray){
+      for(const c2 of circleArray){
+        const dx=c2.cx-fc.cx;
+        const dy=c2.cy-fc.cy;
+        const vxFactor = c2.vx * dx + c2.vy * dy;
+        if(dx * dx + dy * dy <= (fc.r + c2.r)*(fc.r + c2.r)){ //find if d is smaller than (or equals to) r1+r2
+          if(vxFactor < 0){ //apply collision only when 2 circles are colliding instead of separating
+            c2.vx -= 2 * dx * vxFactor / (dx * dx + dy * dy);
+            c2.vy -= 2 * dy * vxFactor / (dx * dx + dy * dy);
+          }
+        }
+      }
+    }
+
+    //circle check collision : find if d is smaller than (or equals to) r1+r2
+    for(let i = 0; i < circleArray.length ; i++){
+      const c1 = circleArray[i];
+      for(let j = i; j < circleArray.length ; j++){
+        const c2 = circleArray[j];
+        const dx=c2.cx-c1.cx;
+        const dy=c2.cy-c1.cy;
+        if(dx * dx + dy * dy <= (c1.r + c2.r)*(c1.r + c2.r)){ //find if d is smaller than (or equals to) r1+r2
+          const rel_c2vx = c2.vx - c1.vx;
+          const rel_c2vy = c2.vy - c1.vy;
+          if(rel_c2vx * dx + rel_c2vy * dy < 0){ //apply collision only when 2 circles are colliding instead of separating
+            c1.vx += 2 * dx * c2.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+            c1.vy += 2 * dy * c2.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+            c2.vx -= 2 * dx * c1.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+            c2.vy -= 2 * dy * c1.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+          }
+        }
+      }
+    }
+
+    //clear all drawings
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    //draw x and y axis
+    ctx.strokeStyle="lightgray";
+    ctx.beginPath();
+    ctx.moveTo(0,canvas.height/2);
+    ctx.lineTo(canvas.width,canvas.height/2);
+    ctx.moveTo(canvas.width/2,0);
+    ctx.lineTo(canvas.width/2,canvas.height);
+    ctx.stroke();
+    ctx.strokeStyle="black";
+
+    //draw border
+    ctx.beginPath();
+    ctx.rect(0,0,canvas.width,canvas.height);
+    ctx.stroke();
+
+    //draw fixed circle
+    for(let i=0;i < fixedCircleArray.length;i++){
+        const fc=fixedCircleArray[i];
+        ctx.fillStyle=ctx.strokeStyle="gray";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+fc.cx,canvas.height/2-fc.cy,fc.r,0,2*Math.PI);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.fillText("FC"+i,canvas.width/2+fc.cx,canvas.height/2-fc.cy);
+        ctx.fillStyle=ctx.strokeStyle="black";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+fc.cx,canvas.height/2-fc.cy,2,0,2*Math.PI);
+        ctx.fill();
+    }
+
+    //draw circle
+    for(let i=0;i < circleArray.length;i++){
+        const c=circleArray[i];
+        ctx.fillStyle=ctx.strokeStyle="black";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+c.cx,canvas.height/2-c.cy,c.r,0,2*Math.PI);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.fillText(c.cx.toFixed(1)+","+c.cy.toFixed(1),canvas.width/2+c.cx,canvas.height/2-c.cy+16);
+        ctx.fillStyle=ctx.strokeStyle="blue";
+        ctx.moveTo(canvas.width/2+c.cx,canvas.height/2-c.cy);
+        ctx.lineTo(canvas.width/2+c.cx+c.vx,canvas.height/2-c.cy-c.vy);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+c.cx+c.vx,canvas.height/2-c.cy-c.vy,2,0,2*Math.PI);
+        ctx.fill();
+        ctx.fillText(c.vx.toFixed(1)+","+c.vy.toFixed(1),canvas.width/2+c.cx+c.vx,canvas.height/2-c.cy-c.vy-4);
+        ctx.fillStyle=ctx.strokeStyle="gray";
+        ctx.fillText("C"+i,canvas.width/2+c.cx,canvas.height/2-c.cy);
+        ctx.fillStyle=ctx.strokeStyle="black";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+c.cx,canvas.height/2-c.cy,2,0,2*Math.PI);
+        ctx.fill();
+    }
+  },1000/frameRate);</span>
+<span class="hl">&lt/script&gt</span></code></pre>
+        <div class="dimdiv">
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+        </div>
+     </div></div>
+    <p>Now the circle just goes through the shell of fixed circle:</p>
+    <iframe id="iframe-chapter_7_3_1-1" class="center" src="chapter_7_3_1.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <br/><button class="center" onclick="document.getElementById('iframe-chapter_7_3_1-1').src+='';">Reload</button>
+    <p>It is normal because in this case <code>vxFactor > 0</code> (the circle is leaving the fixed circle), which currently the code applies collision only when <code>vxFactor < 0</code> (Circle 0 (C0) is moving towards fixed circle 0 (FC0)). Also we need to check if the circle touches the inner shell of the fixed circle, see the following canvas:</p>
+    <iframe id="iframe-chapter_7_3_2-1" class="center" src="chapter_7_3_2.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <p>From the canvas above, this time we need to check if <code>Math.sqrt(dx * dx + dy * dy) + c.r</code> is greater than or equals to <code>fc.r</code>, ie: <code>Math.sqrt(dx * dx + dy * dy) + c.r >= fc.r</code>, rewriting it to eliminate the square root, it becomes : <code>dx * dx + dy * dy  >= (fc.r - c.r) * (fc.r - c.r)</code>, then add it into the orignal fixed circle collision code:</p>
+<div class="codeParentDiv" style="height:126em"><div class="hljs copyborder" style="position:absolute;">   
+        <pre><code><span class="hl">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
+&lt;script&gt;</span>
+<span class="hl">      const circleArray = [
+    {    
+      cx:0,
+      cy:0,
+      r:30,
+      m:Math.PI*30*30, //mass = area
+      vx:60,
+      vy:0
+    }
+  ];
+
+  const fixedCircleArray = [
+    {
+      cx:0,
+      cy:0,
+      r:150
+    }
+  ];
+
+  const canvas = document.getElementById("myCanvas");
+  const ctx = canvas.getContext("2d");
+  ctx.font="12px sans-serif";
+  ctx.textAlign="center";
+  const frameRate=60;
+
+  setInterval(function(){
+    //circle position update
+    for(const c of circleArray){
+        c.cx += c.vx * 1 / frameRate;
+        c.cy += c.vy * 1 / frameRate;
+    }
+
+    //fixed circle and circle check collision
+    for(const fc of fixedCircleArray){
+      for(const c2 of circleArray){
+        const dx=c2.cx-fc.cx;
+        const dy=c2.cy-fc.cy;
+        const vxFactor = c2.vx * dx + c2.vy * dy;
+        if( (dx * dx + dy * dy <= (fc.r + c2.r)*(fc.r + c2.r) && vxFactor < 0) || (dx * dx + dy * dy >= (fc.r - c2.r)*(fc.r - c2.r) && vxFactor > 0)){ //apply collision only if 2 circles touch and the direction of speed is correct
+          c2.vx -= 2 * dx * vxFactor / (dx * dx + dy * dy);
+          c2.vy -= 2 * dy * vxFactor / (dx * dx + dy * dy);
+        }
+      }
+    }
+
+    //circle check collision : find if d is smaller than (or equals to) r1+r2
+    for(let i = 0; i < circleArray.length ; i++){
+      const c1 = circleArray[i];
+      for(let j = i; j < circleArray.length ; j++){
+        const c2 = circleArray[j];
+        const dx=c2.cx-c1.cx;
+        const dy=c2.cy-c1.cy;
+        if(dx * dx + dy * dy <= (c1.r + c2.r)*(c1.r + c2.r)){ //find if d is smaller than (or equals to) r1+r2
+          const rel_c2vx = c2.vx - c1.vx;
+          const rel_c2vy = c2.vy - c1.vy;
+          if(rel_c2vx * dx + rel_c2vy * dy < 0){ //apply collision only when 2 circles are colliding instead of separating
+            c1.vx += 2 * dx * c2.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+            c1.vy += 2 * dy * c2.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+            c2.vx -= 2 * dx * c1.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+            c2.vy -= 2 * dy * c1.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+          }
+        }
+      }
+    }
+
+    //clear all drawings
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    //draw x and y axis
+    ctx.strokeStyle="lightgray";
+    ctx.beginPath();
+    ctx.moveTo(0,canvas.height/2);
+    ctx.lineTo(canvas.width,canvas.height/2);
+    ctx.moveTo(canvas.width/2,0);
+    ctx.lineTo(canvas.width/2,canvas.height);
+    ctx.stroke();
+    ctx.strokeStyle="black";
+
+    //draw border
+    ctx.beginPath();
+    ctx.rect(0,0,canvas.width,canvas.height);
+    ctx.stroke();
+
+    //draw fixed circle
+    for(let i=0;i < fixedCircleArray.length;i++){
+        const fc=fixedCircleArray[i];
+        ctx.fillStyle=ctx.strokeStyle="gray";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+fc.cx,canvas.height/2-fc.cy,fc.r,0,2*Math.PI);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.fillText("FC"+i,canvas.width/2+fc.cx,canvas.height/2-fc.cy);
+        ctx.fillStyle=ctx.strokeStyle="black";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+fc.cx,canvas.height/2-fc.cy,2,0,2*Math.PI);
+        ctx.fill();
+    }
+
+    //draw circle
+    for(let i=0;i < circleArray.length;i++){
+        const c=circleArray[i];
+        ctx.fillStyle=ctx.strokeStyle="black";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+c.cx,canvas.height/2-c.cy,c.r,0,2*Math.PI);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.fillText(c.cx.toFixed(1)+","+c.cy.toFixed(1),canvas.width/2+c.cx,canvas.height/2-c.cy+16);
+        ctx.fillStyle=ctx.strokeStyle="blue";
+        ctx.moveTo(canvas.width/2+c.cx,canvas.height/2-c.cy);
+        ctx.lineTo(canvas.width/2+c.cx+c.vx,canvas.height/2-c.cy-c.vy);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+c.cx+c.vx,canvas.height/2-c.cy-c.vy,2,0,2*Math.PI);
+        ctx.fill();
+        ctx.fillText(c.vx.toFixed(1)+","+c.vy.toFixed(1),canvas.width/2+c.cx+c.vx,canvas.height/2-c.cy-c.vy-4);
+        ctx.fillStyle=ctx.strokeStyle="gray";
+        ctx.fillText("C"+i,canvas.width/2+c.cx,canvas.height/2-c.cy);
+        ctx.fillStyle=ctx.strokeStyle="black";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+c.cx,canvas.height/2-c.cy,2,0,2*Math.PI);
+        ctx.fill();
+    }
+  },1000/frameRate);</span>
+<span class="hl">&lt/script&gt</span></code></pre>
+        <div class="dimdiv">
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+        </div>
+     </div></div> 
+    <p>Then the circle should rebound... but not really! It would stick on the inner shell of the fixed circle:</p>
+    <iframe id="iframe-chapter_7_3_3-1" class="center" src="chapter_7_3_3.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <br/><button class="center" onclick="document.getElementById('iframe-chapter_7_3_3-1').src+='';">Reload</button>
+    <p>Why? Because it has similar problem with separate collision : <b>It applies collision when it shouldn't apply</b>! The core problem is : <b>when the circle is inside the fixed circle and approaching the fixed circle, it should not applies the collision, but now it applies collision as if outer shell collision</b>! See the following table:</p>
+    <table border="1" style="margin-left:auto;margin-right:auto;">
+      <th>Circle is inside fixed circle</th>
+      <th>Circle is outside fixed circle</th>
+      <tr>
+        <td>
+          <iframe id="iframe-chapter_7_3_4-1" src="chapter_7_3_4.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+        <td>
+          <iframe id="iframe-chapter_7_3_5-1" src="chapter_7_3_5.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+      </tr>
+    </table>
+    <p>Currently the code <b>considers 2 cases above identically</b>, so what should we do to correct our code?</p>
+    <p>The answer is : <b>Add additional conditions that apply outer shell collision (vxFactor < 0) only when the circle is outside the fixed circle</b>!</p>
+    <p>As a result, we need to add : <code>Math.sqrt(dx * dx + dy * dy) >= fc.r</code>, rewriting it to eliminate square root : <code>dx * dx + dy * dy >= fc.r * fc.r</code>, into the condition that applies outer shell collision:</p>
+<div class="codeParentDiv" style="height:5em"><div class="hljs readborder" style="position:absolute;">
+        <pre><code><span class="hl">if( (dx * dx + dy * dy >= fc.r * fc.r && dx * dx + dy * dy <= (fc.r + c2.r)*(fc.r + c2.r) && vxFactor < 0) || (dx * dx + dy * dy >= (fc.r - c2.r)*(fc.r - c2.r) && vxFactor > 0)){ //apply collision only if 2 circles touch and the direction of speed is correct</span></code></pre>
+    </div></div>
+    </p>Similar problem also exist at outer shell collision:</p>
+    <iframe id="iframe-chapter_7_3_6-1" class="center" src="chapter_7_3_6.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <br/><button class="center" onclick="document.getElementById('iframe-chapter_7_3_6-1').src+='';">Reload</button>
+    <p>And the related cases:</p>
+    <table border="1" style="margin-left:auto;margin-right:auto;">
+      <th>Circle is outside fixed circle</th>
+      <th>Circle is inside fixed circle</th>
+      <tr>
+        <td>
+          <iframe id="iframe-chapter_7_3_7-1" src="chapter_7_3_7.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+        <td>
+          <iframe id="iframe-chapter_7_3_8-1" src="chapter_7_3_8.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+      </tr>
+    </table>
+    <p>So we also need to <b>add additional conditions that apply inner shell collision (vxFactor > 0) only when the circle is inside the fixed circle</b> : <code>dx * dx + dy * dy <= fc.r * fc.r</code> which opposite to outer wall collision:</p>
+<div class="codeParentDiv" style="height:5em"><div class="hljs readborder" style="position:absolute;">
+        <pre><code><span class="hl">if( (dx * dx + dy * dy >= fc.r * fc.r && dx * dx + dy * dy <= (fc.r + c2.r)*(fc.r + c2.r) && vxFactor < 0) || (dx * dx + dy * dy <= fc.r * fc.r && dx * dx + dy * dy >= (fc.r - c2.r)*(fc.r - c2.r) && vxFactor > 0)){ //apply collision only if 2 circles touch and the direction of speed is correct</span></code></pre>
+    </div></div>
+    <p>Now replace the checking condition at fixed circle collision code as the line above, also we would test the fixed circles by adding 2 circles : one at outer shell, another one at inner shell. Modify the code as the following:</p>
+<div class="codeParentDiv" style="height:132em"><div class="hljs copyborder" style="position:absolute;">   
+        <pre><code><span class="hl">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
+&lt;script&gt;</span>
+<span class="hl">  const circleArray = [
+    {    
+      cx:0,
+      cy:0,
+      r:30,
+      m:Math.PI*30*30, //mass = area
+      vx:60,
+      vy:0
+    },
+    {    
+      cx:210,
+      cy:0,
+      r:30,
+      m:Math.PI*30*30, //mass = area
+      vx:-60,
+      vy:0
+    }
+  ];
+
+  const fixedCircleArray = [
+    {
+      cx:0,
+      cy:0,
+      r:150
+    }
+  ];
+
+  const canvas = document.getElementById("myCanvas");
+  const ctx = canvas.getContext("2d");
+  ctx.font="12px sans-serif";
+  ctx.textAlign="center";
+  const frameRate=60;
+
+  setInterval(function(){
+    //circle position update
+    for(const c of circleArray){
+        c.cx += c.vx * 1 / frameRate;
+        c.cy += c.vy * 1 / frameRate;
+    }
+
+    //fixed circle and circle check collision
+    for(const fc of fixedCircleArray){
+      for(const c2 of circleArray){
+        const dx=c2.cx-fc.cx;
+        const dy=c2.cy-fc.cy;
+        const vxFactor = c2.vx * dx + c2.vy * dy;
+        if( (dx * dx + dy * dy >= fc.r * fc.r && dx * dx + dy * dy <= (fc.r + c2.r)*(fc.r + c2.r) && vxFactor < 0) || (dx * dx + dy * dy <= fc.r * fc.r && dx * dx + dy * dy >= (fc.r - c2.r)*(fc.r - c2.r) && vxFactor > 0)){ //apply collision only if 2 circles touch and the direction of speed is correct
+          c2.vx -= 2 * dx * vxFactor / (dx * dx + dy * dy);
+          c2.vy -= 2 * dy * vxFactor / (dx * dx + dy * dy);
+        }
+      }
+    }
+
+    //circle check collision : find if d is smaller than (or equals to) r1+r2
+    for(let i = 0; i < circleArray.length ; i++){
+      const c1 = circleArray[i];
+      for(let j = i; j < circleArray.length ; j++){
+        const c2 = circleArray[j];
+        const dx=c2.cx-c1.cx;
+        const dy=c2.cy-c1.cy;
+        if(dx * dx + dy * dy <= (c1.r + c2.r)*(c1.r + c2.r)){ //find if d is smaller than (or equals to) r1+r2
+          const rel_c2vx = c2.vx - c1.vx;
+          const rel_c2vy = c2.vy - c1.vy;
+          if(rel_c2vx * dx + rel_c2vy * dy < 0){ //apply collision only when 2 circles are colliding instead of separating
+            c1.vx += 2 * dx * c2.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+            c1.vy += 2 * dy * c2.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+            c2.vx -= 2 * dx * c1.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+            c2.vy -= 2 * dy * c1.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+          }
+        }
+      }
+    }
+
+    //clear all drawings
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    //draw x and y axis
+    ctx.strokeStyle="lightgray";
+    ctx.beginPath();
+    ctx.moveTo(0,canvas.height/2);
+    ctx.lineTo(canvas.width,canvas.height/2);
+    ctx.moveTo(canvas.width/2,0);
+    ctx.lineTo(canvas.width/2,canvas.height);
+    ctx.stroke();
+    ctx.strokeStyle="black";
+
+    //draw border
+    ctx.beginPath();
+    ctx.rect(0,0,canvas.width,canvas.height);
+    ctx.stroke();
+
+    //draw fixed circle
+    for(let i=0;i < fixedCircleArray.length;i++){
+        const fc=fixedCircleArray[i];
+        ctx.fillStyle=ctx.strokeStyle="gray";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+fc.cx,canvas.height/2-fc.cy,fc.r,0,2*Math.PI);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.fillText("FC"+i,canvas.width/2+fc.cx,canvas.height/2-fc.cy);
+        ctx.fillStyle=ctx.strokeStyle="black";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+fc.cx,canvas.height/2-fc.cy,2,0,2*Math.PI);
+        ctx.fill();
+    }
+
+    //draw circle
+    for(let i=0;i < circleArray.length;i++){
+        const c=circleArray[i];
+        ctx.fillStyle=ctx.strokeStyle="black";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+c.cx,canvas.height/2-c.cy,c.r,0,2*Math.PI);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.fillText(c.cx.toFixed(1)+","+c.cy.toFixed(1),canvas.width/2+c.cx,canvas.height/2-c.cy+16);
+        ctx.fillStyle=ctx.strokeStyle="blue";
+        ctx.moveTo(canvas.width/2+c.cx,canvas.height/2-c.cy);
+        ctx.lineTo(canvas.width/2+c.cx+c.vx,canvas.height/2-c.cy-c.vy);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+c.cx+c.vx,canvas.height/2-c.cy-c.vy,2,0,2*Math.PI);
+        ctx.fill();
+        ctx.fillText(c.vx.toFixed(1)+","+c.vy.toFixed(1),canvas.width/2+c.cx+c.vx,canvas.height/2-c.cy-c.vy-4);
+        ctx.fillStyle=ctx.strokeStyle="gray";
+        ctx.fillText("C"+i,canvas.width/2+c.cx,canvas.height/2-c.cy);
+        ctx.fillStyle=ctx.strokeStyle="black";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+c.cx,canvas.height/2-c.cy,2,0,2*Math.PI);
+        ctx.fill();
+    }
+  },1000/frameRate);</span>
+<span class="hl">&lt/script&gt</span></code></pre>
+        <div class="dimdiv">
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+        </div>
+     </div></div> 
+    <p>Now both the outer and inner circle rebounds when colliding with the shell of the fixed circle:</p>
+    <iframe id="iframe-chapter_7_3_9-1" class="center" src="chapter_7_3_9.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <br/><button class="center" onclick="document.getElementById('iframe-chapter_7_3_9-1').src+='';">Reload</button>
+    <p>which seems correct! However, both circles are performing 1D collision, to check if it is correct, lets set up a case that performs 2D collisions!</p>
+    <p>Modify the circle and fixed circle, add 2 fixed circles, one is bigger and another one is smaller, also add a movable circle so that it can perform both outer and inner shell collision as the following:</p>
+<div class="codeParentDiv" style="height:129em"><div class="hljs copyborder" style="position:absolute;">   
+        <pre><code><span class="hl">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
+&lt;script&gt;</span>
+<span class="hl">  const circleArray = [
+    {    
+      cx:0,
+      cy:0,
+      r:30,
+      m:Math.PI*30*30, //mass = area
+      vx:90,
+      vy:-30
+    }
+  ];
+
+  const fixedCircleArray = [
+    {
+      cx:30,
+      cy:30,
+      r:150
+    },
+    {
+      cx:30,
+      cy:-60,
+      r:20
+    }
+  ];
+
+  const canvas = document.getElementById("myCanvas");
+  const ctx = canvas.getContext("2d");
+  ctx.font="12px sans-serif";
+  ctx.textAlign="center";
+  const frameRate=60;
+
+  setInterval(function(){
+    //circle position update
+    for(const c of circleArray){
+        c.cx += c.vx * 1 / frameRate;
+        c.cy += c.vy * 1 / frameRate;
+    }
+
+    //fixed circle and circle check collision
+    for(const fc of fixedCircleArray){
+      for(const c2 of circleArray){
+        const dx=c2.cx-fc.cx;
+        const dy=c2.cy-fc.cy;
+        const vxFactor = c2.vx * dx + c2.vy * dy;
+        if( (dx * dx + dy * dy >= fc.r * fc.r && dx * dx + dy * dy <= (fc.r + c2.r)*(fc.r + c2.r) && vxFactor < 0) || (dx * dx + dy * dy <= fc.r * fc.r && dx * dx + dy * dy >= (fc.r - c2.r)*(fc.r - c2.r) && vxFactor > 0)){ //apply collision only if 2 circles touch and the direction of speed is correct
+          c2.vx -= 2 * dx * vxFactor / (dx * dx + dy * dy);
+          c2.vy -= 2 * dy * vxFactor / (dx * dx + dy * dy);
+        }
+      }
+    }
+
+    //circle check collision : find if d is smaller than (or equals to) r1+r2
+    for(let i = 0; i < circleArray.length ; i++){
+      const c1 = circleArray[i];
+      for(let j = i; j < circleArray.length ; j++){
+        const c2 = circleArray[j];
+        const dx=c2.cx-c1.cx;
+        const dy=c2.cy-c1.cy;
+        if(dx * dx + dy * dy <= (c1.r + c2.r)*(c1.r + c2.r)){ //find if d is smaller than (or equals to) r1+r2
+          const rel_c2vx = c2.vx - c1.vx;
+          const rel_c2vy = c2.vy - c1.vy;
+          if(rel_c2vx * dx + rel_c2vy * dy < 0){ //apply collision only when 2 circles are colliding instead of separating
+            c1.vx += 2 * dx * c2.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+            c1.vy += 2 * dy * c2.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+            c2.vx -= 2 * dx * c1.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+            c2.vy -= 2 * dy * c1.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+          }
+        }
+      }
+    }
+
+    //clear all drawings
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    //draw x and y axis
+    ctx.strokeStyle="lightgray";
+    ctx.beginPath();
+    ctx.moveTo(0,canvas.height/2);
+    ctx.lineTo(canvas.width,canvas.height/2);
+    ctx.moveTo(canvas.width/2,0);
+    ctx.lineTo(canvas.width/2,canvas.height);
+    ctx.stroke();
+    ctx.strokeStyle="black";
+
+    //draw border
+    ctx.beginPath();
+    ctx.rect(0,0,canvas.width,canvas.height);
+    ctx.stroke();
+
+    //draw fixed circle
+    for(let i=0;i < fixedCircleArray.length;i++){
+        const fc=fixedCircleArray[i];
+        ctx.fillStyle=ctx.strokeStyle="gray";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+fc.cx,canvas.height/2-fc.cy,fc.r,0,2*Math.PI);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.fillText("FC"+i,canvas.width/2+fc.cx,canvas.height/2-fc.cy);
+        ctx.fillStyle=ctx.strokeStyle="black";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+fc.cx,canvas.height/2-fc.cy,2,0,2*Math.PI);
+        ctx.fill();
+    }
+
+    //draw circle
+    for(let i=0;i < circleArray.length;i++){
+        const c=circleArray[i];
+        ctx.fillStyle=ctx.strokeStyle="black";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+c.cx,canvas.height/2-c.cy,c.r,0,2*Math.PI);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.fillText(c.cx.toFixed(1)+","+c.cy.toFixed(1),canvas.width/2+c.cx,canvas.height/2-c.cy+16);
+        ctx.fillStyle=ctx.strokeStyle="blue";
+        ctx.moveTo(canvas.width/2+c.cx,canvas.height/2-c.cy);
+        ctx.lineTo(canvas.width/2+c.cx+c.vx,canvas.height/2-c.cy-c.vy);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+c.cx+c.vx,canvas.height/2-c.cy-c.vy,2,0,2*Math.PI);
+        ctx.fill();
+        ctx.fillText(c.vx.toFixed(1)+","+c.vy.toFixed(1),canvas.width/2+c.cx+c.vx,canvas.height/2-c.cy-c.vy-4);
+        ctx.fillStyle=ctx.strokeStyle="gray";
+        ctx.fillText("C"+i,canvas.width/2+c.cx,canvas.height/2-c.cy);
+        ctx.fillStyle=ctx.strokeStyle="black";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+c.cx,canvas.height/2-c.cy,2,0,2*Math.PI);
+        ctx.fill();
+    }
+  },1000/frameRate);</span>
+<span class="hl">&lt/script&gt</span></code></pre>
+        <div class="dimdiv">
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+        </div>
+     </div></div> 
+    <p>Now circle 0 (C0) would rebound when colliding with the inner shell of fixed circle 0 (FC0), also rebound for outer shell of fixed circle 1 (FC1):</p>
+    <iframe id="iframe-chapter_7_3_10-1" class="center" src="chapter_7_3_10.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <br/><button class="center" onclick="document.getElementById('iframe-chapter_7_3_10-1').src+='';">Reload</button>
+    <p>Congratulations! We finished implementating circle and fixed circle collision codes!</p>
+        </div></td>
+      </tr>
+    </table>
+  </body>
+  <script src="highlight/highlight.min.js"></script>
+  <script>
+  document.querySelectorAll('.hl').forEach(el => {
+    hljs.highlightElement(el);
+  });
+  </script>
+</html>

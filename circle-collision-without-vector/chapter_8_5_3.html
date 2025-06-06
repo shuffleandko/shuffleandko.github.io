@@ -1,0 +1,101 @@
+<canvas id="myCanvas" width="400px" height="400px"></canvas>
+<script>
+  const circleArray = [
+    {    
+      cx:-42.87464628562713,
+      cy:-18.00735143996336,
+      r:30,
+      m:Math.PI*30*30, //mass = area
+      vx:-72.0294057598537,
+      vy:-61.73949065130318
+    }
+  ];
+
+  const fixedCircleArray = [
+  ];
+
+  const fp = {
+    x:[-72.0294057598537,-72.0294057598537],
+    y:[-61.73949065130318,25.724787771376324]
+    //x:[-90,-15],
+    //y:[ 30, 75]
+  };
+
+  const canvas = document.getElementById("myCanvas");
+  const ctx = canvas.getContext("2d");
+  ctx.font="12px sans-serif";
+  ctx.textAlign="center";
+  const frameRate=60;
+
+  //clear all drawings
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    //draw x and y axis
+    ctx.strokeStyle="lightgray";
+    ctx.beginPath();
+    ctx.moveTo(0,canvas.height/2);
+    ctx.lineTo(canvas.width,canvas.height/2);
+    ctx.moveTo(canvas.width/2,0);
+    ctx.lineTo(canvas.width/2,canvas.height);
+    ctx.stroke();
+    ctx.strokeStyle="black";
+
+    //draw border
+    ctx.beginPath();
+    ctx.rect(0,0,canvas.width,canvas.height);
+    ctx.stroke();
+
+    //draw fixed point
+    for(let i=0;i < fp.x.length;i++){
+      ctx.beginPath();
+      ctx.fillStyle=ctx.strokeStyle="blue";
+      ctx.fillText("x"+(i+1)+" , y"+(i+1),canvas.width/2+fp.x[i],canvas.height/2-fp.y[i]-(i-1)*30-20);
+      ctx.fillStyle=ctx.strokeStyle="gray";
+      ctx.arc(canvas.width/2+fp.x[i],canvas.height/2-fp.y[i],2,0,2*Math.PI);
+      ctx.fill();
+    }
+    for(let i=0;i < fp.x.length-1;i++){
+      ctx.beginPath();
+      ctx.moveTo(canvas.width/2+fp.x[i],canvas.height/2-fp.y[i]);
+      ctx.lineTo(canvas.width/2+fp.x[i+1],canvas.height/2-fp.y[i+1]);
+      ctx.stroke();
+    }
+
+    //draw fixed circle
+    for(let i=0;i < fixedCircleArray.length;i++){
+        const fc=fixedCircleArray[i];
+        ctx.fillStyle=ctx.strokeStyle="gray";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+fc.cx,canvas.height/2-fc.cy,fc.r,0,2*Math.PI);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.fillText("FC"+i,canvas.width/2+fc.cx,canvas.height/2-fc.cy);
+        ctx.fillStyle=ctx.strokeStyle="black";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+fc.cx,canvas.height/2-fc.cy,2,0,2*Math.PI);
+        ctx.fill();
+    }
+
+    //draw circle
+    for(let i=0;i < circleArray.length;i++){
+        const c=circleArray[i];
+        ctx.fillStyle=ctx.strokeStyle="black";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+c.cx,canvas.height/2-c.cy,c.r,0,2*Math.PI);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.fillText("cx,cy",canvas.width/2+c.cx,canvas.height/2-c.cy+16);
+        ctx.fillStyle=ctx.strokeStyle="gray";
+        ctx.fillText("C"+i,canvas.width/2+c.cx,canvas.height/2-c.cy);
+        ctx.fillStyle=ctx.strokeStyle="black";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2+c.cx,canvas.height/2-c.cy,2,0,2*Math.PI);
+        ctx.fill();
+    }
+
+    ctx.fillStyle=ctx.strokeStyle="red";
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+fp.x[0],canvas.height/2-circleArray[0].cy,2,0,2*Math.PI);
+    ctx.fill();
+    ctx.fillText("x1 , cy",canvas.width/2+fp.x[0],canvas.height/2-circleArray[0].cy);
+</script>

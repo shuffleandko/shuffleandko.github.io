@@ -1,0 +1,107 @@
+<canvas id="myCanvas" width="400px" height="400px"></canvas>
+<script>
+  const c1={
+    cx:45,
+    cy:60,
+    r:20,
+    m:Math.PI*50*50*100, //mass = area
+    vx:0,
+    vy:0
+  };
+
+  const c2={
+    cx:135,
+    cy:-90,
+    r:30,
+    m:Math.PI*30*30, //mass = area
+    vx:-45,
+    vy:60
+  };
+
+  const canvas = document.getElementById("myCanvas");
+  const ctx = canvas.getContext("2d");
+  ctx.font="12px sans-serif";
+  ctx.textAlign="center";
+  const frameRate=60;
+
+  setInterval(function(){
+    //circle position update
+    c1.cx+=c1.vx*1/frameRate;
+    c1.cy+=c1.vy*1/frameRate;
+    c2.cx+=c2.vx*1/frameRate;
+    c2.cy+=c2.vy*1/frameRate;
+
+    //circle check collision : find if d is smaller than (or equals to) r1+r2
+    const dx=c2.cx-c1.cx;
+    const dy=c2.cy-c1.cy;
+    if(dx * dx + dy * dy <= (c1.r + c2.r)*(c1.r + c2.r)){ //find if d is smaller than (or equals to) r1+r2
+      const rel_c2vx = c2.vx - c1.vx;
+      const rel_c2vy = c2.vy - c1.vy;
+      if(rel_c2vx * dx + rel_c2vy * dy < 0){ //apply collision only when 2 circles are colliding instead of separating
+        c1.vx += 2 * dx * c2.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+        c1.vy += 2 * dy * c2.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+        c2.vx -= 2 * dx * c1.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+        c2.vy -= 2 * dy * c1.m * (rel_c2vx * dx + rel_c2vy * dy) / (dx * dx + dy * dy) / (c1.m + c2.m);
+      }
+    }
+
+    //clear all drawings
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    //draw x and y axis
+    ctx.strokeStyle="lightgray";
+    ctx.beginPath();
+    ctx.moveTo(0,canvas.height/2);
+    ctx.lineTo(canvas.width,canvas.height/2);
+    ctx.moveTo(canvas.width/2,0);
+    ctx.lineTo(canvas.width/2,canvas.height);
+    ctx.stroke();
+    ctx.strokeStyle="black";
+
+    //draw border
+    ctx.beginPath();
+    ctx.rect(0,0,canvas.width,canvas.height);
+    ctx.stroke();
+
+    //draw circle
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+c1.cx,canvas.height/2-c1.cy,c1.r,0,2*Math.PI);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.fillText(c1.cx.toFixed(1)+","+c1.cy.toFixed(1),canvas.width/2+c1.cx,canvas.height/2-c1.cy+16);
+    ctx.fillStyle=ctx.strokeStyle="blue";
+    ctx.moveTo(canvas.width/2+c1.cx,canvas.height/2-c1.cy);
+    ctx.lineTo(canvas.width/2+c1.cx+c1.vx,canvas.height/2-c1.cy-c1.vy);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+c1.cx+c1.vx,canvas.height/2-c1.cy-c1.vy,2,0,2*Math.PI);
+    ctx.fill();
+    ctx.fillText(c1.vx.toFixed(1)+","+c1.vy.toFixed(1),canvas.width/2+c1.cx+c1.vx,canvas.height/2-c1.cy-c1.vy-4);
+    ctx.fillStyle=ctx.strokeStyle="gray";
+    ctx.fillText("C1",canvas.width/2+c1.cx,canvas.height/2-c1.cy);
+    ctx.fillStyle=ctx.strokeStyle="black";
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+c1.cx,canvas.height/2-c1.cy,2,0,2*Math.PI);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+c2.cx,canvas.height/2-c2.cy,c2.r,0,2*Math.PI);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.fillText(c2.cx.toFixed(1)+","+c2.cy.toFixed(1),canvas.width/2+c2.cx,canvas.height/2-c2.cy+16);
+    ctx.fillStyle=ctx.strokeStyle="blue";
+    ctx.moveTo(canvas.width/2+c2.cx,canvas.height/2-c2.cy);
+    ctx.lineTo(canvas.width/2+c2.cx+c2.vx,canvas.height/2-c2.cy-c2.vy);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+c2.cx+c2.vx,canvas.height/2-c2.cy-c2.vy,2,0,2*Math.PI);
+    ctx.fill();
+    ctx.fillText(c2.vx.toFixed(1)+","+c2.vy.toFixed(1),canvas.width/2+c2.cx+c2.vx,canvas.height/2-c2.cy-c2.vy-4);
+    ctx.fillStyle=ctx.strokeStyle="gray";
+    ctx.fillText("C2",canvas.width/2+c2.cx,canvas.height/2-c2.cy);
+    ctx.fillStyle=ctx.strokeStyle="black";
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+c2.cx,canvas.height/2-c2.cy,2,0,2*Math.PI);
+    ctx.fill();
+  },1000/frameRate);
+</script>
