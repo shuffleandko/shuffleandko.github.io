@@ -1,0 +1,41 @@
+<canvas id="myCanvas" width="400px" height="400px"></canvas>
+<script>
+  const canvas = document.getElementById("myCanvas");
+  const ctx = canvas.getContext("2d");
+  ctx.beginPath();
+  ctx.rect(0,0,canvas.width,canvas.height);
+  ctx.stroke();
+
+  ctx.beginPath();
+  const height=document.getElementById("myCanvas").height;
+  ctx.arc(100,height-150,30,0,2*Math.PI);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(100,height-150,1,0,2*Math.PI);
+  ctx.fill();
+  ctx.fillText("100,150",80,height-155);
+
+  ctx.beginPath();
+  ctx.moveTo(20,height-20);
+  ctx.lineTo(100,height-20);
+  ctx.moveTo(90,height-10);
+  ctx.lineTo(100,height-20);
+  ctx.lineTo(90,height-30);
+  ctx.stroke();
+  ctx.strokeStyle="red";
+  ctx.beginPath();
+  ctx.moveTo(20,height-20);
+  ctx.lineTo(20,height-150);
+  ctx.moveTo(10,height-140);
+  ctx.lineTo(20,height-150);
+  ctx.lineTo(30,height-140);
+  ctx.stroke();
+
+  ctx.fillStyle=ctx.strokeStyle;
+  ctx.font="16px sans-serif";
+  ctx.fillText("0,0",10,height-5);
+  ctx.fillText("+y",20,height-160);
+  ctx.fillText("(150)",10,height-180);
+  ctx.fillStyle="black";
+  ctx.fillText("+x (100)",110,height-20);
+</script>

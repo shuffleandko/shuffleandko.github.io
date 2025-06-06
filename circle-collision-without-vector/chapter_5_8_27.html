@@ -1,0 +1,70 @@
+<canvas id="myCanvas" width="400px" height="400px"></canvas>
+<script>  
+const c1_vx=-22.326252226057523;
+
+const c2={
+    cx:0,
+    cy:0,
+    r:30,
+    m:Math.PI*30*30, //mass = area
+    vx:19.845557534273354,
+    vy:47.13319914389922
+  };
+
+  const c2_cx=70;
+  const c2_cy=40;
+  const d=Math.sqrt(c2_cx*c2_cx+c2_cy*c2_cy);
+  const a=Math.atan(c2_cy/c2_cx);
+  const canvas = document.getElementById("myCanvas");
+  const ctx = canvas.getContext("2d");
+  ctx.font="12px sans-serif";
+  ctx.textAlign="center";
+
+    //clear all drawings
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    //draw x and y axis
+    ctx.strokeStyle="lightgray";
+    ctx.beginPath();
+    ctx.moveTo(0,canvas.height/2);
+    ctx.lineTo(canvas.width,canvas.height/2);
+    ctx.moveTo(canvas.width/2,0);
+    ctx.lineTo(canvas.width/2,canvas.height);
+    ctx.stroke();
+    ctx.strokeStyle="black";
+
+    //draw border
+    ctx.beginPath();
+    ctx.rect(0,0,canvas.width,canvas.height);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.fillStyle=ctx.strokeStyle="blue";
+    ctx.moveTo(canvas.width/2,canvas.height/2);
+    ctx.lineTo(canvas.width/2+c2.vx,canvas.height/2-c2.vy);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+c2.vx,canvas.height/2-c2.vy,2,0,2*Math.PI);
+    ctx.fill();
+    ctx.fillText("new_rot_rel_c2vx , new_rot_rel_c2vy",canvas.width/2+c2.vx,canvas.height/2-c2.vy-10);
+    ctx.fillStyle=ctx.strokeStyle="black";
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+c2.cx,canvas.height/2-c2.cy,2,0,2*Math.PI);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.fillStyle=ctx.strokeStyle="red";
+    ctx.fillText("29.74°",canvas.width/2+5,canvas.height/2-20,d*0.375);
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+(c2.vx*Math.cos(a)-c2.vy*Math.sin(a)),canvas.height/2-(c2.vx*Math.sin(a)+c2.vy*Math.cos(a)),2,0,2*Math.PI);
+    ctx.fill();
+    ctx.beginPath();
+    const va=Math.atan(c2.vy/c2.vx);
+    ctx.arc(canvas.width/2,canvas.height/2,d*0.1875,-va-a,-va);
+    ctx.fill();
+    ctx.fillText("new_rel_c2vx , new_rel_c2vy",canvas.width/2+(c2.vx*Math.cos(a)-c2.vy*Math.sin(a)),canvas.height/2-(c2.vx*Math.sin(a)+c2.vy*Math.cos(a))-30);
+    ctx.beginPath();
+    ctx.moveTo(canvas.width/2,canvas.height/2);
+    ctx.lineTo(canvas.width/2+(c2.vx*Math.cos(a)-c2.vy*Math.sin(a)),canvas.height/2-(c2.vx*Math.sin(a)+c2.vy*Math.cos(a)));
+    ctx.stroke();
+</script>

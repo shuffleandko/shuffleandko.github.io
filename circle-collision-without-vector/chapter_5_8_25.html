@@ -1,0 +1,142 @@
+<canvas id="myCanvas" width="400px" height="400px"></canvas>
+<script>  
+  const c1={
+    cx:0,
+    cy:0,
+    r:50,
+    m:Math.PI*50*50, //mass = area
+    vx:-19.001850750491258,
+    vy:0
+  };
+
+  const c2={
+    cx:Math.sqrt(68*68+41*41),
+    cy:0,
+    r:30,
+    m:Math.PI*30*30, //mass = area
+    vx:16.890534000436674,
+    vy:56.67218644883358
+  };
+
+  const canvas = document.getElementById("myCanvas");
+  const ctx = canvas.getContext("2d");
+  ctx.font="12px sans-serif";
+  ctx.textAlign="center";
+  const d=Math.sqrt(c2.cx*c2.cx+c2.cy*c2.cy);
+  let aShift=0;
+  let dir=1;
+  const a=Math.atan(41/68);
+  setInterval(function(){
+    if(aShift>=0 || aShift<-a){
+      dir=dir*-1;
+    }
+    aShift+=0.003125*dir;
+    //clear all drawings
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    //draw x and y axis
+    ctx.strokeStyle="lightgray";
+    ctx.beginPath();
+    ctx.moveTo(0,canvas.height/2);
+    ctx.lineTo(canvas.width,canvas.height/2);
+    ctx.moveTo(canvas.width/2,0);
+    ctx.lineTo(canvas.width/2,canvas.height);
+    ctx.stroke();
+    ctx.strokeStyle="black";
+
+    //draw border
+    ctx.beginPath();
+    ctx.rect(0,0,canvas.width,canvas.height);
+    ctx.stroke();
+
+    //draw circl
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+c1.cx,canvas.height/2-c1.cy,c1.r,0,2*Math.PI);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.fillStyle=ctx.strokeStyle="black";
+    ctx.fillText(c1.cx.toFixed(1)+","+c1.cy.toFixed(1),canvas.width/2+c1.cx,canvas.height/2-c1.cy+16);
+    ctx.fillStyle=ctx.strokeStyle="blue";
+    ctx.moveTo(canvas.width/2+c1.cx,canvas.height/2-c1.cy);
+    ctx.lineTo(canvas.width/2+c1.cx+c1.vx*Math.cos(aShift),canvas.height/2-c1.cy+c1.vx*Math.sin(aShift));
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+c1.cx+c1.vx*Math.cos(aShift),canvas.height/2-c1.cy+c1.vx*Math.sin(aShift),2,0,2*Math.PI);
+    ctx.fill();
+    ctx.fillStyle=ctx.strokeStyle="red";
+    ctx.beginPath();
+    ctx.moveTo(canvas.width/2+c1.cx,canvas.height/2-c1.cy);
+    ctx.lineTo(canvas.width/2+c1.cx+c1.vx*Math.cos(a),canvas.height/2-c1.cy-c1.vx*Math.sin(a));
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+c1.cx+c1.vx*Math.cos(a),canvas.height/2-c1.cy-c1.vx*Math.sin(a),2,0,2*Math.PI);
+    ctx.fill();
+    ctx.fillText("rel_c1vx_n , rel_c1vy_n",canvas.width/2+c1.cx+c1.vx*Math.cos(a),canvas.height/2-c1.cy+c1.vx*Math.sin(a)+40);
+    ctx.fillStyle=ctx.strokeStyle="gray";
+    ctx.fillText("C1",canvas.width/2+c1.cx,canvas.height/2-c1.cy);
+    ctx.fillStyle=ctx.strokeStyle="black";
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+c1.cx,canvas.height/2-c1.cy,2,0,2*Math.PI);
+    ctx.fill();
+    const c2_cx=c2.cx*Math.cos(aShift)+c2.cy*Math.sin(aShift);
+    const c2_cy=(-c2.cx*Math.sin(aShift)+c2.cy*Math.cos(aShift));
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+c2_cx,canvas.height/2-c2_cy,c2.r,0,2*Math.PI);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.fillStyle=ctx.strokeStyle="blue";
+    ctx.beginPath();
+    ctx.fillStyle=ctx.strokeStyle="gray";
+    ctx.fillText("C2",canvas.width/2+c2_cx,canvas.height/2-c2_cy);
+    ctx.fillStyle=ctx.strokeStyle="black";
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+c2_cx,canvas.height/2-c2_cy,2,0,2*Math.PI);
+    ctx.fill();
+    ctx.fillStyle=ctx.strokeStyle="gray";
+    ctx.moveTo(canvas.width/2,canvas.height/2);
+    ctx.lineTo(canvas.width/2+c2_cx,canvas.height/2-c2_cy);
+    ctx.stroke();
+    ctx.fillStyle=ctx.strokeStyle="red";
+    ctx.beginPath();
+    ctx.moveTo(canvas.width/2,canvas.height/2);
+    ctx.lineTo(canvas.width/2+c2.cx*Math.cos(a),canvas.height/2-c2.cx*Math.sin(a));
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+c2.cx*Math.cos(a),canvas.height/2-c2.cx*Math.sin(a),2,0,2*Math.PI);
+    ctx.fill();
+
+    ctx.fillStyle=ctx.strokeStyle="red";
+    ctx.beginPath();
+    ctx.moveTo(canvas.width/2+c2_cx,canvas.height/2-c2_cy);
+    ctx.lineTo(canvas.width/2+c2_cx+(c2.vx*Math.cos(a)-c2.vy*Math.sin(a)),canvas.height/2-c2_cy-(c2.vx*Math.sin(a)+c2.vy*Math.cos(a)));
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+c2_cx+(c2.vx*Math.cos(a)-c2.vy*Math.sin(a)),canvas.height/2-c2_cy-(c2.vx*Math.sin(a)+c2.vy*Math.cos(a)),2,0,2*Math.PI);
+    ctx.fill();
+    ctx.fillText("rel_c2vx_n , rel_c2vy_n",canvas.width/2+c2_cx+(c2.vx*Math.cos(a)-c2.vy*Math.sin(a)),canvas.height/2-c2_cy-(c2.vx*Math.sin(a)+c2.vy*Math.cos(a))-10);
+
+    ctx.fillStyle=ctx.strokeStyle="blue";
+    ctx.beginPath();
+    ctx.moveTo(canvas.width/2+c2_cx,canvas.height/2-c2_cy);
+    ctx.lineTo(canvas.width/2+c2_cx+(c2.vx*Math.cos(aShift)+c2.vy*Math.sin(aShift)),canvas.height/2-c2_cy-(-c2.vx*Math.sin(aShift)+c2.vy*Math.cos(aShift)));
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+c2_cx+(c2.vx*Math.cos(aShift)+c2.vy*Math.sin(aShift)),canvas.height/2-c2_cy-(-c2.vx*Math.sin(aShift)+c2.vy*Math.cos(aShift)),2,0,2*Math.PI);
+    ctx.fill();
+    ctx.fillStyle=ctx.strokeStyle="red";
+    ctx.beginPath();
+    const va=Math.atan(c2.vy/c2.vx);
+    ctx.arc(canvas.width/2+c2_cx,canvas.height/2-c2_cy,d*0.1875,-va-a,-va);
+    ctx.stroke();
+    ctx.fillStyle=ctx.strokeStyle="red";
+    ctx.fillText("θ",canvas.width/2+40,canvas.height/2-5,d*0.375);
+    ctx.fillText("θ",canvas.width/2+(85*Math.cos(aShift)+20*Math.sin(aShift)),canvas.height/2-( -85*Math.sin(aShift)+20*Math.cos(aShift)),d*0.375);
+    ctx.beginPath();
+    ctx.arc(canvas.width/2,canvas.height/2,d*0.375,-a,0);
+    ctx.moveTo(canvas.width/2+d*0.375-8,canvas.height/2-8);
+    ctx.lineTo(canvas.width/2+d*0.375-3,canvas.height/2-15);
+    ctx.lineTo(canvas.width/2+d*0.375+3,canvas.height/2-11);
+    ctx.stroke();
+  },1000/60);
+</script>
+</script>

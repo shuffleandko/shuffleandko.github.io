@@ -1,0 +1,96 @@
+<canvas id="myCanvas" width="400px" height="400px"></canvas>
+<script>
+  const mc1={
+    cx:0,
+    cy:0,
+    r:40
+  };
+
+  const mc2={
+    cx:120,
+    cy:90,
+    r:70
+  };
+
+  const canvas = document.getElementById("myCanvas");
+  const ctx = canvas.getContext("2d");
+  ctx.font="16px sans-serif";
+  ctx.textAlign="center";
+
+  //draw x and y axis
+  ctx.strokeStyle="lightgray";
+  ctx.beginPath();
+  ctx.moveTo(0,canvas.height/2);
+  ctx.lineTo(canvas.width,canvas.height/2);
+  ctx.moveTo(canvas.width/2,0);
+  ctx.lineTo(canvas.width/2,canvas.height);
+  ctx.stroke();
+  ctx.strokeStyle="black";
+
+  //draw border
+  ctx.beginPath();
+  ctx.rect(0,0,canvas.width,canvas.height);
+  ctx.stroke();
+
+  ctx.strokeStyle="lightcoral";
+  ctx.lineWidth=10;
+  ctx.beginPath();
+  ctx.moveTo(0,0);
+  ctx.moveTo(canvas.width/2,canvas.height/2);
+  ctx.lineTo(canvas.width/2+mc2.cx,canvas.height-canvas.height/2-mc2.cy);
+  ctx.stroke();
+
+  ctx.strokeStyle="black";
+  ctx.lineWidth=1;
+  //draw circle
+  ctx.beginPath();
+  ctx.arc(canvas.width/2+mc1.cx,canvas.height-canvas.height/2-mc1.cy,mc1.r,0,2*Math.PI);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(canvas.width/2+mc1.cx,canvas.height-canvas.height/2-mc1.cy,2,0,2*Math.PI);
+  const a=Math.atan(mc2.cy/mc2.cx);
+  const rx1=mc1.r*Math.cos(a);
+  const ry1=mc1.r*Math.sin(a);
+  ctx.arc(canvas.width/2+rx1,canvas.height-canvas.height/2-ry1,2,0,2*Math.PI);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.fill();
+  ctx.fillText(mc1.cx+","+mc1.cy,canvas.width/2+mc1.cx,canvas.height-canvas.height/2-mc1.cy+22);
+  ctx.moveTo(canvas.width/2+mc1.cx,canvas.height/2-mc1.cy);
+  ctx.lineTo(canvas.width/2+rx1,canvas.height/2-ry1);
+  ctx.stroke();
+  ctx.fillText(mc1.r,canvas.width/2+mc1.cx+mc1.r*0.25,canvas.height/2-mc1.r*0.375);
+
+  ctx.beginPath();
+  ctx.arc(canvas.width/2+mc2.cx,canvas.height/2-mc2.cy,mc2.r,0,2*Math.PI);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(canvas.width/2+mc2.cx,canvas.height-canvas.height/2-mc2.cy,2,0,2*Math.PI);
+  const rx2=mc2.r*Math.cos(a+Math.PI);
+  const ry2=mc2.r*Math.sin(a+Math.PI);
+  ctx.arc(canvas.width/2+mc2.cx+rx2,canvas.height-canvas.height/2-mc2.cy-ry2,2,0,2*Math.PI);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.fillStyle="red";
+  ctx.fillText(mc2.cx+","+mc2.cy,canvas.width/2+mc2.cx,canvas.height-canvas.height/2-mc2.cy-8);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.fillStyle="black";
+  ctx.moveTo(canvas.width/2+mc2.cx,canvas.height-canvas.height/2-mc2.cy);
+  ctx.lineTo(canvas.width/2+mc2.cx+rx2,canvas.height-canvas.height/2-mc2.cy-ry2);
+  ctx.stroke();
+  ctx.fillText(mc2.r,canvas.width/2+mc2.cx-mc2.r/2,canvas.height-canvas.height/2-mc2.cy+16);
+  ctx.fillStyle="red";
+  ctx.fillText("d =",canvas.width/2+mc2.cx*mc1.r/(mc1.r+mc2.r)-120,canvas.height/2-mc2.cy*mc1.r/(mc1.r+mc2.r)-32);
+  ctx.fillText("Math.sqrt(120*120 + 90*90) = 150",canvas.width/2+mc2.cx*mc1.r/(mc1.r+mc2.r)-120,canvas.height/2-mc2.cy*mc1.r/(mc1.r+mc2.r)-12);
+
+  ctx.strokeStyle="red";
+  ctx.lineWidth=2;
+  ctx.beginPath();
+  ctx.moveTo(canvas.width/2,canvas.height/2);
+  ctx.lineTo(canvas.width/2+mc2.cx,canvas.height/2);
+  ctx.lineTo(canvas.width/2+mc2.cx,canvas.height/2-mc2.cy);
+  ctx.stroke();
+  ctx.fillText(mc2.cx,canvas.width/2+mc2.cx/2,canvas.height/2-6);
+  ctx.fillText(mc2.cy,canvas.width/2+mc2.cx+12,canvas.height/2-mc2.cy/2);
+</script>

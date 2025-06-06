@@ -1,0 +1,15 @@
+<canvas id="myCanvas" width="400px" height="400px"></canvas>
+<script>
+  const canvas = document.getElementById("myCanvas");
+  const ctx = canvas.getContext("2d");
+
+  //draw canvas border
+  ctx.beginPath();
+  ctx.rect(0,0,canvas.width,canvas.height);
+  ctx.stroke();
+
+  //draw circle
+  ctx.beginPath();
+  ctx.arc(100,150,30,0,2*Math.PI);
+  ctx.stroke();
+</script>

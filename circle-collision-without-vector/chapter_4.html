@@ -1,0 +1,547 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8"/>
+  </head>
+  <link rel="stylesheet" href="highlight/styles/github-dark.min.css">
+  <style>
+    code{
+      background-color:#D3D3D3;
+    }
+    .center{
+      margin-left:auto;
+      margin-right:auto;
+      display:block;
+    }
+    .hr1{
+        height:0.5em;background-color:lightgrey;
+    }
+    .dimdiv{
+      position:absolute;
+      top:0;
+      width:100%;
+      pointer-events: none;
+    }
+    .dimcode{
+      background-color:black;
+      opacity:0.625;
+      width:100%;
+      display:block;
+    }
+    .showcode{
+      width:100%;
+      opacity:0;
+      display:block;
+    }
+    .readborder{
+      border:0.25em solid black;
+    }
+    .copyborder{
+      border:0.5em dashed gray;
+    }
+    .codeParentDiv{
+      position:relative;
+      overflow-x:scroll;
+    }
+  </style>
+  <body>
+    <table style="position:fixed;top:0%;left:0%;width:auto;height:100%;background-color:lightgrey">
+      <tr>
+        <td style="border: 1px solid black;">
+          <span><b>Attention:</b>Repository : <a href="https://github.com/shuffleandko/circle-collision-without-vector">https://github.com/shuffleandko/circle-collision-without-vector</a>. The correctness of this tutorial is not guaranteed, the context may be updated without notifications, and the author is not responsible for any consequences that copy or run the codes in the tutorial, if any.</span>
+          <hr/>
+          <span><b>Go to chapter: </b></span>
+          <select onChange="window.location.href=this.value">
+            <option value="chapter_1.html">Chapter 1 : Introduction</option>
+            <option value="chapter_2.html">Chapter 2 : Draw something on browsers using canvas element</option>
+            <option value="chapter_3.html">Chapter 3 : Move the circle</option>
+            <option value="chapter_4.html" selected disabled>Chapter 4 : Circle-circle collision detection</option>
+            <option value="chapter_5.html">Chapter 5 : Circle-circle collision response</option>
+            <option value="chapter_6.html">Chapter 6 : Use array to avoid repeating codes</option>
+            <option value="chapter_7.html">Chapter 7 : Circles and fixed circles collision</option>
+            <option value="chapter_8.html">Chapter 8 : Circles and fixed points, lines and fixed polygons collision</option>
+            <option value="chapter_9.html">Chapter 9 : Test all objects working together and remove debug drawings</option>
+          </select>
+          <hr/>
+          <button onclick="window.location.href='#top'">▲ Go back to top ▲</button>&nbsp<span><b>Move to section</b>:
+            <select onChange="window.location.href=this.value">
+              <option value="#section_1">4.1 Check circle-circle collision at 1D dimension</option>
+              <option value="#section_2">4.2 Check circle-circle collision at 2D dimensions</option>
+              <option value="#section_3">4.3 Write the collision detection code</option>
+              <option value="#section_4">4.4 Integrate the collision checking psudo code to the moving ball canvas</option>
+            </select>
+          </span>
+        </td>
+      </tr>
+      <tr style="width:width:100%;height:100%;">
+        <td style="width:100%;height:100%;"><div style="background-color:white;overflow-x:auto;overflow-y:scroll;width:width:100%;height:100%;padding-left:0.5em;">
+          <div id="top"></div> 
+    <h1 style="text-align:center;">Chapter 4 : Circle-circle collision detection</h1>
+    <hr class="hr1"/>
+    <h2 id="section_1">4.1 Check circle-circle collision at 1D dimension</h2>
+    <p>At former chapter, we learned how to draw 2 moving circles. However, when they approaches to each other, they just overlaps and ignore each other instead of appear colliding! Why? Because we need to add codes to check if they are colliding, and if so, do something after they are colliding! What is "colliding"? At the canvas, it means the circles are overlapping or touching. So at this chapter we would add codes to check if 2 circles are overlapping or touching. </p>
+    <p>While our canvas is 2D, we start exploring circle-circle collision at 1D dimension. Circle-circle collision at 1D dimension means 2 circles move along <b>x axis</b> or <b>y axis</b> : either <code>vx</code> or <code>vy</code> (or both) is <b>0</b>. In the following example, we would choose <code>vy = 0</code> as example, which means 2 circles move <b>horizontally</b>. Why starting with 1D instead of 2D? Because it may simpify the problem of circle-circle collision at 2D dimension! </p>
+    <p>To check if 2 circles are colliding (overlapping or touching), we need to compare their distance with their sum of the radius.</p>
+    <p>Sometimes, an image is better than tons of texts! So, let we consider the case that 2 circles that one with radius <b>40</b>, another one <b>70</b>, lie on x axis, with a red line that indicates their distance, shown as the following with 3 different cases:</p>
+    <table border="1" style="margin-left:auto;margin-right:auto;">
+      <th>Not colliding</th>
+      <th>Colliding (touching)</th>
+      <th>Colliding (overlapping)</th>
+      <tr>
+        <td>
+          <iframe class="center" src="chapter_4_1_1.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+        <td>
+          <iframe class="center" src="chapter_4_1_2.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+        <td>
+          <iframe class="center" src="chapter_4_1_3.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <ul>
+            <li>distance = 150 - 20 = 130</li>
+            <li>sum of radii = 110</li>
+            <li>distance > sum of radii</li>
+          </ul>
+        </td>
+        <td>
+          <ul>
+            <li>distance = 130 - 20 = 110</li>
+            <li>sum of radii = 110</li>
+            <li>distance = sum of radii</li>
+          </ul>
+        </td>
+        <td>
+          <ul>
+            <li>distance = 120 - 20 = 100</li>
+            <li>sum of radii = 110</li>
+            <li>distance < sum of radii</li>
+          </ul>
+        </td>
+      </tr>
+    </table>
+    <p>From 3 cases above, we may find the distance between 2 balls by <b>x of circle 2 - x of circle 1</b>. How to explain that distance is <b>x of circle 2 - x of circle 1</b>? Consider we shift the x position of canvas to left (<b>-20</b>) so that circle 1 becomes lying on the origin <b>(0,0)</b>, then the new x position of circle 2 becomes <b>x of circle 2 - x of circle 1</b>, which is exactly equals to the distance between circle 1 and circle 2:</p>
+    <table border="1" style="margin-left:auto;margin-right:auto;">
+      <tr>
+        <td>
+          <iframe class="center" src="chapter_4_1_4.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+        <td>
+          <iframe class="center" src="chapter_4_1_5.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+        <td>
+          <iframe class="center" src="chapter_4_1_6.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <iframe class="center" src="chapter_4_1_7.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+        <td>
+          <iframe class="center" src="chapter_4_1_8.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+        <td>
+          <iframe class="center" src="chapter_4_1_9.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+      </tr>
+    </table>
+    <p>At the above cases, the distance between 2 circle may be obvious so that the explanation above seems over overcomplicated, but there is a technique that used above would be very useful later: <b>Reduce to the case that one circle lies on the origin</b>! By doing that, we can simpify and then solve many problems at more straightforward and understandable way!</p>
+    <p>First, let we summerize the examples above that:</p>
+    <ul>
+      <li>At "Not colliding" case, their distance is <b>130</b>, which is larger than the sum of their radius <b>40 + 70 = 110</b> (distance > sum of radii, <b>130</b> > <b>110</b>)</li>
+      <li>At "Colliding" (touching) case, their distance is <b>110</b>, which is equal to the sum of their radius <b>40 + 70 = 110</b> (distance = sum of radii, <b>110</b> = <b>110</b>)</li>
+      <li>At "Colliding (overlapping)" case, their distance is <b>100</b>, which is smaller than the sum of their radius <b>40 + 70 = 110</b> (distance < sum of radii, <b>100</b> < <b>110</b>)</li>
+    </ul>
+    <p>So the principle to check if 2 circles are colliding is : <b>Check if their distance is larger/smaller than, or equals to the sum of their radius!</b></p>
+    <hr class="hr1"/>
+    <h2 id="section_2">4.2 Check circle-circle collision at 2D dimensions</h2>
+    <p>At the last example, we know we can check if 2 circles overlap by finding if their distance is shorter than the some of their radius. However, the canvas is 2D and 2 circles may move at any directions, How do we apply the principle at the 2D environment? Before touching any codes, consider 2 circles which don't lie on horizontally line with the following properties:</p>
+    <p>Cirlce 1:</p>
+    <ul>
+      <li>x1 : 20</li>
+      <li>y1 : 30</li>
+      <li>r1 : 40</li>
+    </ul>
+    <p>Cirlce 2:</p>
+    <ul>
+      <li>x2 : 140</li>
+      <li>y2 : 120</li>
+      <li>r2 : 70</li>
+    </ul>
+    <p>How do you show or explain if they are overlapping? One of the solutions is to draw them on the canvas:</p>
+    <iframe class="center" src="chapter_4_2_1.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <p>As you can see they are not overlapping. However, the "drawing solution" only lets human know they are not overlapping, but not the computers : the computer needs some formulae which make the good use of x1, y1, r1, x2, y2, r2! How to construct the formula at this case? Before writing formulae, lets start with circles with actual numbers instead of variables, then breakdown the problem to several parts! First we reduce the example to the case that one circle lies on the origin: shift the whole canvas as shown below:</p>
+    <iframe class="center" src="chapter_4_2_2.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <p>When we shift the whole canvas, the bigger circle is also shifted : its position shifts to <b>(140-20,120-30)</b> = <b>(120,90)</b>, shown at the following:
+    <iframe class="center" src="chapter_4_2_3.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <p>Now let we draw a red line <code>d</code> between the origin and circle 2, also draw the line of raidii of 2 circles on the red line as the canvas shown below:</p>
+    <iframe class="center" src="chapter_4_2_4.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <p>We can see the length of <code>d</code> is longer that <code>r1</code>+<code>r2</code>, so 2 circles don't overlap. But how to find the value of <code>d</code>?</p>
+    <p>Here is the time to use <b>Pythagorean theorem</b>! Draw a horizontal line below <code>d</code> and vertial line line at the left, a triangle is formed (shown at the canvas below):</p> 
+    <iframe class="center" src="chapter_4_2_5.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <p>Now you may see the base of the triangle equals to <code>x2-x1</code> = <b>120</b>, while the height equals to <code>y2-y1</code> = <b>90</b>, so by applying Pythagorean theorem : <code>d</code> = <code>Math.sqrt(120*120+90*90)</code> = <b>150</b>. Since <code>r1+r2</code> = <b>40 + 70</b> = <b>110</b>, <code>d > r1 + r2</code> (<b>150</b> > <b>110</b>), so 2 circles are not overlapped numerically.</p>
+    <p>The case above shows 2 non-colliding circles. What about colliding circles? Lets consider another case:</p>
+    <p>Cirlce 1:</p>
+    <ul>
+      <li>x1 : 20</li>
+      <li>y1 : 30</li>
+      <li>r1 : 40</li>
+    </ul>
+    <p>Cirlce 2:</p>
+    <ul>
+      <li>x2 : 80</li>
+      <li>y2 : 90</li>
+      <li>r2 : 70</li>
+    </ul>
+    <p>The 2 circles are drawn as the following:</p>
+    <iframe class="center" src="chapter_4_2_6.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <p>Then repeat the steps at the last example that reduce the case that shifting the whole canvas:</p>
+    <iframe class="center" src="chapter_4_2_7.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <p>Now the bigger circle lies on position <b>(100-20,90-30)</b> = <b>(80,60)</b>:</p>
+    <iframe class="center" src="chapter_4_2_8.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <p>Draw a red line between origin and circle 2, as the distance between circle 1 and circle 2:<p>
+    <iframe class="center" src="chapter_4_2_9.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <p>Again, to apply Pythagorean theorem, draw a horizontal line below <code>d</code> and vertial line line at the left, a triangle is formed (shown at the canvas below):</p> 
+    <iframe class="center" src="chapter_4_2_10.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <p>This time, base of the triangle equals to <code>x2-x1</code> = 80, while the height equals to <code>y2-y1</code> = <b>60</b>, by applying Pythagorean theorem : <code>d</code> = <code>Math.sqrt(80*80+60*60)</code> = <b>100</b>. Since <code>r1+r2</code> = <b>40 + 70 = 110</b>, <code>d < r1 + r2</code> (<b>100</b> < <b>110</b>), so 2 circles are overlapped numerically.</p>
+    <p>To compare 2 cases, the following tables list them together:<p>
+<table border="1" style="margin-left:auto;margin-right:auto;">
+      <th>Not colliding</th>
+      <th>Colliding</th>
+      <tr>
+        <td>
+          <iframe class="center" src="chapter_4_2_1.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+        <td>
+          <iframe class="center" src="chapter_4_2_6.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <iframe class="center" src="chapter_4_2_2.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+        <td>
+          <iframe class="center" src="chapter_4_2_7.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <iframe class="center" src="chapter_4_2_3.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+        <td>
+          <iframe class="center" src="chapter_4_2_8.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <iframe class="center" src="chapter_4_2_4.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+        <td>
+          <iframe class="center" src="chapter_4_2_9.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <iframe class="center" src="chapter_4_2_5.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+        <td>
+          <iframe class="center" src="chapter_4_2_10.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <ul>
+            <li>distance = 150</li>
+            <li>sum of radii = 110</li>
+            <li>distance > sum of radii</li>
+            <li>not colliding</li>
+          </ul>
+        </td>
+        <td>
+          <ul>
+            <li>distance = 100</li>
+            <li>sum of radii = 110</li>
+            <li>distance < sum of radii</li>
+            <li>colliding</li>
+          </ul>
+        </td>
+      </tr>
+    </table>
+    <p>So from the 2 examples above, we know that even in 2D environment, the way to check if 2 circles collide is similar to the case that 2 circles at horizonal line:</p>
+    <ol>
+      <li>Reduce to the case that one of the circles lie on origin <b>(0,0)</b>, another one lies on <code>x2-x1,y2-y1</code></li>
+      <li>Find the sum of radius of 2 circles : <code>r1+r2</code></li>
+      <li>Find the distance between 2 circles <code>d</code> = <code>Math.sqrt((x2-x1)*(x2-x1),(y2-y1)*(y2-y1))</code>
+      <li>Check if <code>d</code> is greater, smaller or equals to <code>r1+r2</code></li>
+    </ol>
+    <hr class="hr1"/>
+    <h2 id="section_3">4.3 Write the collision detection code</h2>
+    <p>At last examples, we use circles with actual values to show how to check if 2 circles are colliding. Now it is the time to construct the formula to check if 2 circles are colliding! First, lets see the case that we are referring to, as well as the variables that would participate, as shown at the following:</p>
+    <iframe class="center" src="chapter_4_3_1.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <p>The first thing to do is reducing to the case that the smaller ball becomes lying on origin : assume 2 circles are shifted <code>-x1,-y1</code>:
+    <iframe class="center" src="chapter_4_3_2.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <p>Now <code>x2,y2</code> becomes <code>x2-x1,y2-y1</code>, shown as the following:</p>
+    <iframe class="center" src="chapter_4_3_3.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <p>The next target is to find <code>d</code> : the distance between 2 circles:</p>
+    <iframe class="center" src="chapter_4_3_4.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <p>By applying Pythagorean theorem, <code>d = Math.sqrt(dx*dx + dy*dy)</code>:</p>
+    <iframe class="center" src="chapter_4_3_5.html" width="400px" height="400" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <p>We know that <code>dx</code> is <code>x2-x1</code>, <code>dy</code> is <code>y2-y1</code>, so we can start writing the code:</p>
+    <div class="codeParentDiv" style="height:6em"><div class="hljs readborder" style="position:absolute;"><pre><code><span class="hl">const dx=x2-x1;
+const dy=y2-y1;</span></code></pre></div></div>
+    <p>Remember, our target is to check if <code>d</code> is smaller than <code>r1+r2</code>, so the psudo code to check collision is:</p>
+    <div class="codeParentDiv" style="height:9em"><div class="hljs readborder" style="position:absolute;"><pre><code><span class="hl">const dx=x2-x1;
+const dy=y2-y1;
+if(Math.sqrt(dx*dx + dy*dy) <= r1+r2){ //find if d is smaller than (or equals to) r1+r2
+  //something would do after collision
+}</span></code></pre></div></div>
+  <p>Note: while we can refactor the code above, for example, square both sides to avoid <code>Math.sqrt()</code>, we don't do that here in order to keep the code straight forward.</p>
+  <hr class="hr1"/>
+  <h2 id="section_4">4.4 Integrate the collision checking psudo code to the moving ball canvas</h2>
+  <p>So we constructed the collision checking code as the following:</p>
+  <div class="codeParentDiv" style="height:9em"><div class="hljs readborder" style="position:absolute;"><pre><code><span class="hl">const dx=x2-x1;
+const dy=y2-y1;
+if(Math.sqrt(dx*dx + dy*dy) <= r1+r2){ //find if d is smaller than (or equals to) r1+r2
+  //something would do after collision
+}</span></code></pre></div></div>
+    <p>To integrate to the circle canvas code, we need to change the variable name to the canvas example that use, for example, <code>r1</code> to <code>c1.r</code>, so the actual code to add is:</p>
+    <div class="codeParentDiv" style="height:9em"><div class="hljs readborder" style="position:absolute;"><pre><code><span class="hl">const dx=c2.cx-c1.cx;
+const dy=c2.cy-c1.cy;
+if(Math.sqrt(dx*dx + dy*dy) <= c1.r+c2.r){ //find if d is smaller than (or equals to) r1+r2
+  //something would do after collision
+}
+</span></code></pre></div></div>
+  <p>To complete the physics engine, we need to add tons of collision response codes related to physics. But now, this chapter is focus on collision detection only. </p>
+  <p>So, instead of rebounding after collision, currently we stop 2 circles immediately in order to ensure the collision detection is working properly.</p>
+  <p>To stop the canvas (stop 2 circles), we would stop the function in <code>setInterval</code> when 2 circles collide :</p>
+  <div class="codeParentDiv" style="height:18em"><div class="hljs readborder" style="position:absolute;"><pre><code><span class="hl">.
+.
+.
+const intervalId=setInterval(function(){
+.
+.
+.
+const dx=c2.cx-c1.cx;
+const dy=c2.cy-c1.cy;
+if(Math.sqrt(dx*dx + dy*dy) <= c1.r+c2.r){ //find if d is smaller than (or equals to) r1+r2
+  clearInterval(intervalId);
+}
+.
+.
+.</span></code></pre></div></div>
+  <p>we would add <code>const intervalId=setInterval(function(){</code> to store the id of setInterval. The previous examples don't need it because we don't need to stop the canvas before.</p>
+  <p>When 2 circles collide, <code>clearInterval(intervalId);</code>, would stop the function in <code>setInterval</code> so that the function inside it would not be called again, hence stop updating the canvas and also stopping 2 circles from updating their positions.</p>
+  <p>Recall the canvas that shows 2 moving circles at last chapter:</p>
+  <div class="codeParentDiv" style="height:58em"><div class="hljs readborder" style="position:absolute;">
+        <pre><code><span class="hl">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
+&lt;script&gt;</span>
+<span class="hl">  const c1={
+    cx:20,
+    cy:50,
+    r:30,
+    vx:60,
+    vy:30
+  };
+
+  const c2={
+    cx:150,
+    cy:100,
+    r:20,
+    vx:-10,
+    vy:-20
+  };
+
+  const canvas = document.getElementById("myCanvas");
+  const ctx = canvas.getContext("2d");
+  const frameRate=60;
+  setInterval(function(){
+    //circle position update
+    c1.cx += c1.vx * 1 / frameRate;
+    c1.cy += c1.vy * 1 / frameRate;
+    c2.cx += c2.vx * 1 / frameRate;
+    c2.cy += c2.vy * 1 / frameRate;
+
+    //clear all drawings
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    //draw x and y axis
+    ctx.strokeStyle="lightgray";
+    ctx.beginPath();
+    ctx.moveTo(0,canvas.height/2);
+    ctx.lineTo(canvas.width,canvas.height/2);
+    ctx.moveTo(canvas.width/2,0);
+    ctx.lineTo(canvas.width/2,canvas.height);
+    ctx.stroke();
+    ctx.strokeStyle="black";
+
+    //draw border
+    ctx.beginPath();
+    ctx.rect(0,0,canvas.width,canvas.height);
+    ctx.stroke();
+
+    //draw circle
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+c1.cx,canvas.height/2-c1.cy,c1.r,0,2*Math.PI);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+c2.cx,canvas.height/2-c2.cy,c2.r,0,2*Math.PI);
+    ctx.stroke();
+  },1000/frameRate);</span>
+<span class="hl">&lt/script&gt</span></code></pre>
+        <div class="dimdiv">
+        </div>
+    </div></div>
+    <p>The canvas should show 2 circles move on their own way without collision as the following:</p>
+    <iframe id="iframe-chapter_4_4_1-1" class="center" src="chapter_4_4_1.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <br/><button class="center" onclick="document.getElementById('iframe-chapter_4_4_1-1').src+='';">Reload</button>
+    <p>Now add the collision detection code as the following:</p>
+    <div class="codeParentDiv" style="height:65em"><div class="hljs copyborder" style="position:absolute;">
+        <pre><code><span class="hl">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
+&lt;script&gt;</span>
+<span class="hl">  const c1={
+    cx:20,
+    cy:50,
+    r:30,
+    vx:60,
+    vy:30
+  };
+
+  const c2={
+    cx:150,
+    cy:100,
+    r:20,
+    vx:-10,
+    vy:-20
+  };
+
+  const canvas = document.getElementById("myCanvas");
+  const ctx = canvas.getContext("2d");
+  const frameRate=60;
+  const intervalId=setInterval(function(){
+    //circle position update
+    c1.cx += c1.vx * 1 / frameRate;
+    c1.cy += c1.vy * 1 / frameRate;
+    c2.cx += c2.vx * 1 / frameRate;
+    c2.cy += c2.vy * 1 / frameRate;
+
+    //circle check collision : find if d is smaller than (or equals to) r1+r2
+    const dx=c2.cx-c1.cx;
+    const dy=c2.cy-c1.cy;
+    if(Math.sqrt(dx*dx + dy*dy) <= c1.r+c2.r){
+      clearInterval(intervalId);
+    }
+
+    //clear all drawings
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    //draw x and y axis
+    ctx.strokeStyle="lightgray";
+    ctx.beginPath();
+    ctx.moveTo(0,canvas.height/2);
+    ctx.lineTo(canvas.width,canvas.height/2);
+    ctx.moveTo(canvas.width/2,0);
+    ctx.lineTo(canvas.width/2,canvas.height);
+    ctx.stroke();
+    ctx.strokeStyle="black";
+
+    //draw border
+    ctx.beginPath();
+    ctx.rect(0,0,canvas.width,canvas.height);
+    ctx.stroke();
+
+    //draw circle
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+c1.cx,canvas.height/2-c1.cy,c1.r,0,2*Math.PI);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+c2.cx,canvas.height/2-c2.cy,c2.r,0,2*Math.PI);
+    ctx.stroke();
+  },1000/frameRate);</span>
+<span class="hl">&lt/script&gt</span></code></pre>
+        <div class="dimdiv">
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>          
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>   
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>      
+          <code class="dimcode">&nbsp;</code>  
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>              
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>          
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>          
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>          
+          <code class="dimcode">&nbsp;</code>  
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>  
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+        </div>
+    </div></div>
+    <p>The canvas should show 2 circles stop immediately when colliding:</p>
+    <iframe id="iframe-chapter_4_4_2-1" class="center" src="chapter_4_4_2.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <br/><button class="center" onclick="document.getElementById('iframe-chapter_4_4_2-1').src+='';">Reload</button>
+    <p>The key code is <code>c1.vx=c1.vy=c2.vx=c2.vy=0;</code> : we did something after circle collision, which set the <code>vx</code> and <code>vy</code> of both circles as <b>0</b> (stopping the circles).
+    <p>Now we know how to detect if 2 circles are colliding, and also able to do something after collision. Great! We are getting closer and closer to finish our physics engine!</p>
+        </div></td>
+      </tr>
+    </table>
+  </body>
+  <script src="highlight/highlight.min.js"></script>
+  <script>
+  document.querySelectorAll('.hl').forEach(el => {
+    hljs.highlightElement(el);
+  });
+  </script>
+</html>

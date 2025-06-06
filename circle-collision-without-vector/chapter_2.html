@@ -1,0 +1,591 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8"/>
+  </head>
+  <link rel="stylesheet" href="highlight/styles/github-dark.min.css">
+  <style>
+    code{
+      background-color:#D3D3D3;
+    }
+    .center{
+      margin-left:auto;
+      margin-right:auto;
+      display:block;
+    }
+    .hr1{
+        height:0.5em;background-color:lightgrey;
+    }
+    .dimdiv{
+      position:absolute;
+      top:0;
+      width:100%;
+      pointer-events: none;
+    }
+    .dimcode{
+      background-color:black;
+      opacity:0.625;
+      width:100%;
+      display:block;
+    }
+    .showcode{
+      width:100%;
+      opacity:0;
+      display:block;
+    }
+    .readborder{
+      border:0.25em solid black;
+    }
+    .copyborder{
+      border:0.5em dashed gray;
+    }
+    .codeParentDiv{
+      position:relative;
+      overflow-x:scroll;
+    }
+  </style>
+  <body>
+    <table style="position:fixed;top:0%;left:0%;width:auto;height:100%;background-color:lightgrey">
+      <tr>
+        <td style="border: 1px solid black;">
+          <span><b>Attention:</b>Repository : <a href="https://github.com/shuffleandko/circle-collision-without-vector">https://github.com/shuffleandko/circle-collision-without-vector</a>. The correctness of this tutorial is not guaranteed, the context may be updated without notifications, and the author is not responsible for any consequences that copy or run the codes in the tutorial, if any.</span>
+          <hr/>
+          <span><b>Go to chapter: </b></span>
+          <select onChange="window.location.href=this.value">
+            <option value="chapter_1.html">Chapter 1 : Introduction</option>
+            <option value="chapter_2.html" selected disabled>Chapter 2 : Draw something on browsers using canvas element</option>
+            <option value="chapter_3.html">Chapter 3 : Move the circle</option>
+            <option value="chapter_4.html">Chapter 4 : Circle-circle collision detection</option>
+            <option value="chapter_5.html">Chapter 5 : Circle-circle collision response</option>
+            <option value="chapter_6.html">Chapter 6 : Use array to avoid repeating codes</option>
+            <option value="chapter_7.html">Chapter 7 : Circles and fixed circles collision</option>
+            <option value="chapter_8.html">Chapter 8 : Circles and fixed points, lines and fixed polygons collision</option>
+            <option value="chapter_9.html">Chapter 9 : Test all objects working together and remove debug drawings</option>
+          </select>
+          <hr/>
+          <button onclick="window.location.href='#top'">▲ Go back to top ▲</button>&nbsp<span><b>Move to section</b>:
+            <select onChange="window.location.href=this.value">
+              <option value="#section_1">2.1 Create a html page with a canvas</option>
+              <option value="#section_2">2.2 Add some drawing code : Draw a rectancle</option>
+              <option value="#section_3">2.3 Add another drawing code : Add a circle</option>
+              <option value="#section_4">2.4 Better for mathematics related debugging : transform the canvas coordinate system to Cartesian coordinate system</option>
+              <option value="#section_5">2.5 Transform the origin from the bottom left to the middle of the canvas</option>
+              <option value="#section_6">2.6 Draw circle at old position again under the new coordinate system</option>
+              <option value="#section_7">2.7 Refactor the code : change canvas.height-canvas.height/2 into canvas.height/2</option>
+              <option value="#section_8">2.8 Refactor the code : use variables to hold the position</option>
+            </select>
+          </span>
+        </td>
+      </tr>
+      <tr style="width:width:100%;height:100%;">
+        <td style="width:100%;height:100%;"><div style="background-color:white;overflow-x:auto;overflow-y:scroll;width:width:100%;height:100%;padding-left:0.5em;">
+          <div id="top"></div> 
+    <h1 style="text-align:center;">Chapter 2 : Draw something on browsers using canvas element</h1>
+    <hr class="hr1"/>
+    <h2 id="section_1">2.1 Create a html page with a canvas</h2>
+    <p>To build a physics engine, drawing and rendering what you built is the basic skill that need to learn, so the first thing to do is drawing something on browsers with HTML element <code>&ltcanvas&gt</code>.</p>
+    <p><code>&ltcanvas&gt</code> is a rectangular area that allows you to draw something on a web page. </p>
+    <p>First, create a new blank html file <code>physics_engine.html</code>, then copy and paste the following HTML into the file:<br/>
+    <div class="codeParentDiv" style="height:5em"><div class="hljs copyborder" style="position:absolute;">
+      <pre><code><span class="hl">&ltcanvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt</span></code></pre>
+    </div></div>
+    <p>Then, a canvas with width <b>400px</b> and height <b>400px</b> is created as the following:</p>
+    <iframe class="center" src="chapter_2_1_1.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <p>Yes, it is blank currently because we didn't draw anything on it yet! But we would draw something on it later.</p>
+    <p><code>id=&quot;myCanvas&quot;</code> specifies <code>myCanvas</code> is the <code>id</code> (as if name or identity) of the canvas, which we need to refer to <code>myCanvas</code> in order to draw something on it later (You may define your own <code>id</code> such as <code>canvas1</code> or <code>peters_canvas</code>, but the examples at later would use <code>myCanvas</code> as the dedicated <code>id</code>). </p>
+    <hr class="hr1"/>
+    <h2 id="section_2">2.2 Add some drawing code : Draw a rectancle</h2>
+    <p>When you open the file with your browser, it looks like a blank page because a new <code>&ltcanvas&gt</code> has no content at all! Let's draw something on the canvas! Modify the html file as the following: under the <code>&ltcanvas&gt</code>, add <code>&ltscript&gt</code> tag with some JavaScript code:</p>
+    <div class="codeParentDiv" style="height:14em"><div class="hljs copyborder" style="position:absolute;"><pre><code><span class="hl">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
+&lt;script&gt;</span>
+<span class="hl">  const canvas = document.getElementById(&quot;myCanvas&quot;);
+  const ctx = canvas.getContext(&quot;2d&quot;);
+
+  //draw canvas border
+  ctx.beginPath();
+  ctx.rect(0,0,canvas.width,canvas.height);
+  ctx.stroke();</span>
+<span class="hl">&lt;/script&gt;</span></code></pre></div></div>
+    <p>When you open the browser, you should able to see a rectangle like the following:</p>
+    <iframe class="center" src="chapter_2_2_1.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <p>It is a <b>400px</b> * <b>400px</b> rectangle, act as the border of the canvas. Congratulations! You gain the ability of drawing on your browser! Inside the <code>&ltscript&gt</code> tag, it is the place that we put our drawing JavaScript code. Lets look deeper the code we added:</p>
+    <div class="codeParentDiv" style="height:10em"><div class="hljs readborder" style="position:absolute;"><pre><code><span class="hl">const canvas = document.getElementById(&quot;myCanvas&quot;);
+const ctx = canvas.getContext(&quot;2d&quot;);
+
+//draw canvas border
+ctx.beginPath();
+ctx.rect(0,0,canvas.width,canvas.height);
+ctx.stroke();</span></code></pre></div></div>
+    <p>The first two lines of codes : <code>const canvas = document.getElementById(&quot;myCanvas&quot;);</code> and <code>const ctx = canvas.getContext(&quot;2d&quot;);</code>, are necessary to get the object that lets us able to draw on the canvas, which specifies we want to get the drawable object: <code>ctx</code>, of the HTML element with id <code>myCanvas</code>.</p>
+    <p>To start drawing anything, we need to call <code>beginPath();</code> first.</p>
+    <p><code>ctx.rect(0,0,canvas.width,canvas.height);</code> is the spirit of the drawing code: it specifies we want to draw a rectangle with width and height equals to the attribute defined at start : <code>width="400px"</code> and <code>height="400px"</code>, starting from the position (0,0) : top left of the canvas, to the position <b>(400,400)</b> : the bottom right of the canvas. </p>
+    <p>Finally you need to call <code>ctx.stroke();</code> to complete the drawing, which specifies the style of the rectangle we draw is a <bold>hollow</bold> rectangle (Alternatively, you may try changing it into <code>ctx.fill();</code>, which a black concrete rectangle would be drawn instead of a hollow one.).</p>
+    <p>At the coming examples, we would mostly ignore the HTML tags and focus on the JavaScript code between <code>&ltscript&gt</code> tag, which may add, delete or modify the code. </p> 
+    <hr class="hr1"/>
+    <h2 id="section_3">2.3 Add another drawing code : Add a circle</h2>
+    <p>Besides the rectangle, now we would add a new shape on the canvas : circle. We would add a circle which the center lies on <b>(100,150)</b> with radius <b>30</b>. Modify the code as the following:</p>
+    <div class="codeParentDiv" style="height:18em"><div class="hljs copyborder" style="position:absolute;">
+      <pre><code><span class="hl">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
+&lt;script&gt;</span>
+<span class="hl">  const canvas = document.getElementById(&quot;myCanvas&quot;);
+  const ctx = canvas.getContext(&quot;2d&quot;);
+
+  //draw canvas border
+  ctx.beginPath();
+  ctx.rect(0,0,canvas.width,canvas.height);
+  ctx.stroke();
+
+  //draw circle
+  ctx.beginPath();
+  ctx.arc(100,150,30,0,2*Math.PI);
+  ctx.stroke();</span>
+<span class="hl">&lt/script&gt</span></code></pre>
+        <div class="dimdiv">
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+        </div>
+    </div></div>
+    <p>The code above should show the following:</p>
+    <iframe class="center" src="chapter_2_3_1.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <p>The key of the code above is <code>ctx.arc(100,150,30,0,2*Math.PI);</code>, which specifies we want to draw a circle with center lies on position <b>(100,150)</b>, with radius <b>30</b>. The last 2 parameters, <code>0</code> and <code>2*Math.PI</code> means drawing an arc from radian 0 to 360. Alternatively, you may try changing it into <code>ctx.arc(100,150,30,0,Math.PI/2);</code>, which should draw an arc (a quarter of circle) instead of a complete circle.</p>
+    <p>Congratulations! you have learned about basic drawings on the browsers, which is useful to visualize and debug your code later!
+    <hr class="hr1"/>
+    <h2 id="section_4">2.4 Better for mathematics related debugging : transform the canvas coordinate system to Cartesian coordinate system</h2>
+    <p>The canvas coordinate system is different from the Cartesian coordinate system which we usually use in mathematics. When position y increases, in the canvas, the circle starts from top then shifts downwards, while in Cartesian coordinate system it starts from the bottom and then shifts upwards:</p>
+    <table border="1" style="margin-left:auto;margin-right:auto;">
+      <tr>
+        <th>Canvas coordinate system</th>
+        <th>Cartesian coordinate system</th>
+      </tr>
+      <tr>
+        <td>
+          <iframe src="chapter_2_4_1.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+        <td>
+          <iframe src="chapter_2_4_2.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+      </tr>
+    </table>
+    <p>To have better debugging environment, we have to transform the canvas coordinate system into Cartesian coordinate system so that when we draw a circle at <b>(100,150)</b>, the circle would appear at the bottom left instead of the top left. Modify the code as the following:</p>
+    <div class="codeParentDiv" style="height:18em"><div class="hljs copyborder" style="position:absolute;">
+      <pre><code><span class="hl">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
+&lt;script&gt;</span>
+<span class="hl">  const canvas = document.getElementById(&quot;myCanvas&quot;);
+  const ctx = canvas.getContext(&quot;2d&quot;);
+
+  //draw canvas border
+  ctx.beginPath();
+  ctx.rect(0,0,canvas.width,canvas.height);
+  ctx.stroke();
+
+  //draw circle
+  ctx.beginPath();
+  ctx.arc(100,canvas.height-150,30,0,2*Math.PI);
+  ctx.stroke();</span>
+<span class="hl">&lt/script&gt</span></code></pre>
+         <div class="dimdiv">
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+        </div>
+    </div></div>
+    <p>The y position parameter is changed from <code>150</code> to <code>canvas.height-150</code>, which <code>canvas.height</code> is the height of the canvas defined at the <code>canvas</code> tag (<code>height="400"</code>). Now the circle should show at the bottom left as the following:</p>
+    <iframe class="center" src="chapter_2_4_3.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <p>The key of the transformation is <code>canvas.height-150</code>, which converts the y position of Cartesian coordinate system into y position of canvas coordinate system by mirroring the y position : starting y changes from <b>0</b> to <b>400</b>, then the y location also mirrored as changing from <b>150</b> to <b>-150</b>. When we specifiy we want to draw at position <b>(100,150)</b>, it actually draws on position <b>(100,400-150)</b> = <b>(100,250)</b> on the canvas, resulting as if the canvas is using Cartesian coordinate system:</p>
+    <iframe class="center" src="chapter_2_4_4.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <hr class="hr1"/>
+    <h2 id="section_5">2.5 Transform the origin from the bottom left to the middle of the canvas</h2>
+    <p>Besides using Cartesian coordinate system, we can do one more step to make our debugging drawing more maintainable : move the origin from the bottom left to the middle of the canvas. First modify the position of the circle, change it from <b>(100,150)</b> to <b>(0,0)</b> :</p>
+    <div class="codeParentDiv" style="height:18em"><div class="hljs copyborder" style="position:absolute;">
+      <pre><code><span class="hljs">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
+&lt;script&gt;</span>
+<span class="hljs hl">  const canvas = document.getElementById(&quot;myCanvas&quot;);
+  const ctx = canvas.getContext(&quot;2d&quot;);
+
+  //draw canvas border
+  ctx.beginPath();
+  ctx.rect(0,0,canvas.width,canvas.height);
+  ctx.stroke();
+
+  //draw circle
+  ctx.beginPath();
+  ctx.arc(0,canvas.height-0,30,0,2*Math.PI);
+  ctx.stroke();</span>
+<span class="hl">&lt/script&gt</span></code></pre>
+         <div class="dimdiv">
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+        </div>
+    </div></div>
+    <p>Now the circle is at the positon (0,0), which lies on the bottom left of the canvas as the following:</p>
+    <iframe class="center" src="chapter_2_5_1.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <p>The circle is clipped, which shows a quarter of the circle only when it lies on the origin. Why would we want to move the origin? Because at later examples, we would often start with placing a circle in the origin, it is easier for calculating and also more convenient to see the whole circle for debugging. So we would now move the origin from bottom left to middle so that when we draw a circle at <b>(0,0)</b>, it actually draws on the middle instead of at bottom left:</p>
+    <table border="1" style="margin-left:auto;margin-right:auto;">
+      <tr>
+        <th>Origin at bottom left</th>
+        <th>Origin at middle</th>
+      </tr>
+      <tr>
+        <td>
+          <iframe src="chapter_2_5_2.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+        <td>
+          <iframe src="chapter_2_5_3.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+      </tr>
+    </table>
+    <p>Modify the code as the following:</p>
+    <div class="codeParentDiv" style="height:18em"><div class="hljs copyborder" style="position:absolute;">
+      <pre><code><span class="hl">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
+&lt;script&gt;</span>
+<span class="hl">  const canvas = document.getElementById(&quot;myCanvas&quot;);
+  const ctx = canvas.getContext(&quot;2d&quot;);
+
+  //draw canvas border
+  ctx.beginPath();
+  ctx.rect(0,0,canvas.width,canvas.height);
+  ctx.stroke();
+
+  //draw circle
+  ctx.beginPath();
+  ctx.arc(canvas.width/2+0,canvas.height-canvas.height/2-0,30,0,2*Math.PI);
+  ctx.stroke();</span>
+<span class="hl">&lt/script&gt</span></code></pre>
+         <div class="dimdiv">
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+        </div>
+    </div></div>
+    <p>Now the circle should lie at the center of the canvas:</p>
+    <iframe class="center" src="chapter_2_5_4.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <p>The key of shifting the origin is, we changed the drawing position from <code>0,canvas.height-0</code> to <code>canvas.width/2+0,canvas.height-canvas.height/2-0</code> : when we specify drawing on position <b>(0,0)</b>, we are actually drawing at positon <b>(200+0,400-200-0)</b> = <b>(200,200)</b> on the canvas, resulting acting the origin of the canvas is at the middle:</p>
+    <iframe class="center" src="chapter_2_5_5.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <hr class="hr1"/>
+    <h2 id="section_6">2.6 Draw circle at old position again under the new coordinate system</h2>
+    <p>Modify the code as the following, this time we add 2 lines to show x and y axis (the line that shows x=0 and y=0), also change the position of circle to <b>(100,150)</b> again:</p>
+    <div class="codeParentDiv" style="height:28em"><div class="hljs copyborder" style="position:absolute;">
+        <pre><code><span class="hl">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
+&lt;script&gt;</span>
+<span class="hl">  const canvas = document.getElementById(&quot;myCanvas&quot;);
+  const ctx = canvas.getContext(&quot;2d&quot;);
+
+  //draw x and y axis
+  ctx.strokeStyle="lightgray";
+  ctx.beginPath();
+  ctx.moveTo(0,canvas.height/2);
+  ctx.lineTo(canvas.width,canvas.height/2);
+  ctx.moveTo(canvas.width/2,0);
+  ctx.lineTo(canvas.width/2,canvas.height);
+  ctx.stroke();
+  ctx.strokeStyle="black";
+
+  //draw canvas border
+  ctx.beginPath();
+  ctx.rect(0,0,canvas.width,canvas.height);
+  ctx.stroke();
+
+  //draw circle
+  ctx.beginPath();
+  ctx.arc(canvas.width/2+100,canvas.height-canvas.height/2-150,30,0,2*Math.PI);
+  ctx.stroke();</span>
+<span class="hl">&lt/script&gt</span></code></pre>
+         <div class="dimdiv">
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+        </div>
+    </div></div>
+    <p>This time we added 2 light gray lines on the canvas, showing the x and y axis as well as the origin at the middle by the following code:</p>
+    <div class="codeParentDiv" style="height:12em"><div class="hljs readborder" style="position:absolute;">
+      <pre><code><span class="hl"> //draw x and y axis
+ctx.strokeStyle="lightgray";
+ctx.beginPath();
+ctx.moveTo(0,canvas.height/2);
+ctx.lineTo(canvas.width,canvas.height/2);
+ctx.moveTo(canvas.width/2,0);
+ctx.lineTo(canvas.width/2,canvas.height);
+ctx.stroke();
+ctx.strokeStyle="black";
+</span></code></pre></div></div>
+    <p>The last line : <code>ctx.strokeStyle="black";</code> indicates that we would switch the drawing color back to black (as the default) later. The light gray lines would be helpful for us to calculate or debug later. The position of the circle should be changed to <b>(100,150)</b> as the following:</p>
+    <iframe class="center" src="chapter_2_6_1.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <p>The key change is at the line <code>ctx.arc(canvas.width/2+100,canvas.height-canvas.height/2-150,30,0,2*Math.PI);</code> : when we specify drawing on position <b>(100,150)</b>, we are actually drawing on the canvas with position <code>(canvas.width/2+100,canvas.height-canvas.height/2-150)</code> = <b>(200+100,400-200-150)</b> = <b>(350,50)</b>, resulting as if the canvas is using Cartesian coordinate system with origin at the middle shown as the following:</p>
+    <iframe class="center" src="chapter_2_6_2.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <hr class="hr1"/>
+    <h2 id="section_7">2.7 Refactor the code : change canvas.height-canvas.height/2 into canvas.height/2</h2>
+    <p>While keeping the drawings remain unchanged, at the line <code>ctx.arc(canvas.width/2+150,canvas.height-canvas.height/2-100,30,0,2*Math.PI);</code>, we may simply it as at the line <code>ctx.arc(canvas.width/2+150,canvas.height/2-100,30,0,2*Math.PI);</code> : </p>
+    <div class="codeParentDiv" style="height:28em"><div class="hljs copyborder" style="position:absolute;">
+        <pre><code><span class="hl">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
+&lt;script&gt;</span>
+<span class="hl">  const canvas = document.getElementById(&quot;myCanvas&quot;);
+  const ctx = canvas.getContext(&quot;2d&quot;);
+
+  //draw x and y axis
+  ctx.strokeStyle="lightgray";
+  ctx.beginPath();
+  ctx.moveTo(0,canvas.height/2);
+  ctx.lineTo(canvas.width,canvas.height/2);
+  ctx.moveTo(canvas.width/2,0);
+  ctx.lineTo(canvas.width/2,canvas.height);
+  ctx.stroke();
+  ctx.strokeStyle="black";
+
+  //draw frame border
+  ctx.beginPath();
+  ctx.rect(0,0,canvas.width,canvas.height);
+  ctx.stroke();
+
+  //draw circle
+  ctx.beginPath();
+  ctx.arc(canvas.width/2+150,canvas.height/2-100,30,0,2*Math.PI);
+  ctx.stroke();</span>
+<span class="hljs">&lt/script&gt</span></code></pre>
+         <div class="dimdiv">
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+        </div>
+    </div></div>
+    <p>At the coming examples, the canvas would show the drawings using Cartesian coordinate system with the origin at the middle as the code above.</p>
+    <hr class="hr1"/>
+    <h2 id="section_8">2.8 Refactor the code : use variables to hold the position</h2>
+    <p>While we may change the position of the circle by editing the line <code>ctx.arc(canvas.width/2+150,canvas.height/2-100,30,0,2*Math.PI);</code>, it is not obvious to find which line stores the position of the circle, also at later examples, we may need to change the position dynamically, so it is better to represent the position by variables instead of hardcode the number at that line. Modify the code as the following:</p>
+    <div class="codeParentDiv" style="height:31em"><div class="hljs copyborder" style="position:absolute;">
+        <pre><code><span class="hl">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
+&lt;script&gt;</span>
+<span class="hl">  let cx=100;
+  let cy=150;
+
+  const canvas = document.getElementById(&quot;myCanvas&quot;);
+  const ctx = canvas.getContext(&quot;2d&quot;);
+
+  //draw x and y axis
+  ctx.strokeStyle="lightgray";
+  ctx.beginPath();
+  ctx.moveTo(0,canvas.height/2);
+  ctx.lineTo(canvas.width,canvas.height/2);
+  ctx.moveTo(canvas.width/2,0);
+  ctx.lineTo(canvas.width/2,canvas.height);
+  ctx.stroke();
+  ctx.strokeStyle="black";
+
+  //draw frame border
+  ctx.beginPath();
+  ctx.rect(0,0,canvas.width,canvas.height);
+  ctx.stroke();
+
+  //draw circle
+  ctx.beginPath();
+  ctx.arc(canvas.width/2+cx,canvas.height/2-cy,30,0,2*Math.PI);
+  ctx.stroke();</span>
+<span class="hl">&lt/script&gt</span></code></pre>
+         <div class="dimdiv">
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+        </div>
+    </div></div>
+    <p>Now we use variable <code>cx</code> to store the x position, and <code>cy</code> for y position. Now when we change the number after the variable, for example,change <code>cx</code> from <b>100</b> to <b>20</b> and change <code>cy</code> from <b>150</b> to <b>50</b>: </p>
+    <div class="codeParentDiv" style="height:31em"><div class="hljs copyborder" style="position:absolute;">
+        <pre><code><span class="hl">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
+&lt;script&gt;</span>
+<span class="hl">  let cx=20;
+  let cy=50;
+
+  const canvas = document.getElementById(&quot;myCanvas&quot;);
+  const ctx = canvas.getContext(&quot;2d&quot;);
+
+  //draw x and y axis
+  ctx.strokeStyle="lightgray";
+  ctx.beginPath();
+  ctx.moveTo(0,canvas.height/2);
+  ctx.lineTo(canvas.width,canvas.height/2);
+  ctx.moveTo(canvas.width/2,0);
+  ctx.lineTo(canvas.width/2,canvas.height);
+  ctx.stroke();
+  ctx.strokeStyle="black";
+
+  //draw canvas border
+  ctx.beginPath();
+  ctx.rect(0,0,canvas.width,canvas.height);
+  ctx.stroke();
+
+  //draw circle
+  ctx.beginPath();
+  ctx.arc(canvas.width/2+cx,canvas.height/2-cy,30,0,2*Math.PI);
+  ctx.stroke();</span>
+<span class="hl">&lt/script&gt</span></code></pre>
+         <div class="dimdiv">
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+        </div>
+    </div></div>
+    <p>The position of the circle should change as the following:</p>
+    <iframe class="center" src="chapter_2_7_1.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <p>The position of the circle becomes <b>(20,50)</b> currently.</p>
+    <p>Congratulations! You learned about how we draw something on the canvas with desired position. </p> 
+        </div></td>
+      </tr>
+    </table>
+  </body>
+  <script src="highlight/highlight.min.js"></script>
+  <script>
+  document.querySelectorAll('.hl').forEach(el => {
+    hljs.highlightElement(el);
+  });
+  </script>
+</html>

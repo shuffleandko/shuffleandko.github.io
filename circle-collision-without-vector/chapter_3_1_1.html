@@ -1,0 +1,17 @@
+<canvas id="myCanvas" width="400px" height="400px"></canvas>
+<script>
+  let cx=20;
+  let cy=50;
+  const canvas = document.getElementById("myCanvas");
+  const ctx = canvas.getContext("2d");
+  ctx.font="16px sans-serif";
+  ctx.textAlign="center";
+  setInterval(function(){
+    //cx,cy value update
+    cx+=60;
+    cy+=30;
+
+    //draw text
+    ctx.fillText(cx+","+cy,200,200);
+  },1000);
+</script>

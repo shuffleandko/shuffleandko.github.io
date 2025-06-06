@@ -1,0 +1,94 @@
+<canvas id="myCanvas" width="400px" height="400px"></canvas>
+<script>  
+  const c1={
+    cx:0,
+    cy:0,
+    r:50,
+    m:Math.PI*50*50, //mass = area
+    vx:-16.27279936558287,
+    vy:-9.811540793954377
+  };
+
+  const c2={
+    cx:68,
+    cy:41,
+    r:30,
+    m:Math.PI*30*30, //mass = area
+    vx:-14.797779540047582,
+    vy:57.2542799832066
+  };
+  const d=Math.sqrt(c2.cx*c2.cx+c2.cy*c2.cy);
+
+  const canvas = document.getElementById("myCanvas");
+  const ctx = canvas.getContext("2d");
+  ctx.font="12px sans-serif";
+  ctx.textAlign="center";
+
+    //clear all drawings
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    //draw x and y axis
+    ctx.strokeStyle="lightgray";
+    ctx.beginPath();
+    ctx.moveTo(0,canvas.height/2);
+    ctx.lineTo(canvas.width,canvas.height/2);
+    ctx.moveTo(canvas.width/2,0);
+    ctx.lineTo(canvas.width/2,canvas.height);
+    ctx.stroke();
+    ctx.strokeStyle="black";
+
+    //draw border
+    ctx.beginPath();
+    ctx.rect(0,0,canvas.width,canvas.height);
+    ctx.stroke();
+
+    //draw circle
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+c1.cx,canvas.height/2-c1.cy,c1.r,0,2*Math.PI);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.fillText(c1.cx.toFixed(1)+","+c1.cy.toFixed(1),canvas.width/2+c1.cx,canvas.height/2-c1.cy+16);
+    ctx.fillStyle=ctx.strokeStyle="red";
+    ctx.fillText("rel_c1vx_n , rel_c1vy_n",canvas.width/2+c1.cx+c1.vx,canvas.height/2-c1.cy-c1.vy+16);
+    ctx.moveTo(canvas.width/2+c1.cx,canvas.height/2-c1.cy);
+    ctx.lineTo(canvas.width/2+c1.cx+c1.vx,canvas.height/2-c1.cy-c1.vy);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+c1.cx+c1.vx,canvas.height/2-c1.cy-c1.vy,2,0,2*Math.PI);
+    ctx.fill();
+    ctx.fillStyle=ctx.strokeStyle="gray";
+    ctx.fillText("C1",canvas.width/2+c1.cx,canvas.height/2-c1.cy);
+    ctx.fillStyle=ctx.strokeStyle="black";
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+c1.cx,canvas.height/2-c1.cy,2,0,2*Math.PI);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+c2.cx,canvas.height/2-c2.cy,c2.r,0,2*Math.PI);
+    ctx.stroke();
+    ctx.beginPath();
+    //ctx.fillText(c2.cx.toFixed(1)+","+c2.cy.toFixed(1),canvas.width/2+c2.cx,canvas.height/2-c2.cy+16);
+    ctx.fillStyle=ctx.strokeStyle="red";
+    ctx.moveTo(canvas.width/2+c2.cx,canvas.height/2-c2.cy);
+    ctx.lineTo(canvas.width/2+c2.cx+c2.vx,canvas.height/2-c2.cy-c2.vy);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+c2.cx+c2.vx,canvas.height/2-c2.cy-c2.vy,2,0,2*Math.PI);
+    ctx.fill();
+    ctx.fillStyle=ctx.strokeStyle="red";
+    ctx.fillText("rel_c2vx_n , rel_c2vy_n",canvas.width/2+c2.cx+c2.vx,canvas.height/2-c2.cy-c2.vy-10);
+    ctx.fillStyle=ctx.strokeStyle="gray";
+    ctx.fillText("C2",canvas.width/2+c2.cx,canvas.height/2-c2.cy);
+    ctx.beginPath();
+    ctx.moveTo(canvas.width/2,canvas.height/2);
+    ctx.lineTo(canvas.width/2+c2.cx,canvas.height/2-c2.cy);
+    ctx.stroke();
+    ctx.fillStyle=ctx.strokeStyle="black";
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+c2.cx,canvas.height/2-c2.cy,2,0,2*Math.PI);
+    ctx.fill();
+    ctx.fillStyle=ctx.strokeStyle="red";
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+c2.cx,canvas.height/2-c2.cy,2,0,2*Math.PI);
+    ctx.fill();
+</script>

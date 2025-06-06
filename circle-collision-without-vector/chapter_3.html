@@ -1,0 +1,850 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8"/>
+  </head>
+  <link rel="stylesheet" href="highlight/styles/github-dark.min.css">
+  <style>
+    code{
+      background-color:#D3D3D3;
+    }
+    .center{
+      margin-left:auto;
+      margin-right:auto;
+      display:block;
+    }
+    .hr1{
+        height:0.5em;background-color:lightgrey;
+    }
+    .dimdiv{
+      position:absolute;
+      top:0;
+      width:100%;
+      pointer-events: none;
+    }
+    .dimcode{
+      background-color:black;
+      opacity:0.625;
+      width:100%;
+      display:block;
+    }
+    .showcode{
+      width:100%;
+      opacity:0;
+      display:block;
+    }
+    .readborder{
+      border:0.25em solid black;
+    }
+    .copyborder{
+      border:0.5em dashed gray;
+    }
+    .codeParentDiv{
+      position:relative;
+      overflow-x:scroll;
+    }
+  </style>
+  <body>
+    <table style="position:fixed;top:0%;left:0%;width:auto;height:100%;background-color:lightgrey">
+      <tr>
+        <td style="border: 1px solid black;">
+          <span><b>Attention:</b>Repository : <a href="https://github.com/shuffleandko/circle-collision-without-vector">https://github.com/shuffleandko/circle-collision-without-vector</a>. The correctness of this tutorial is not guaranteed, the context may be updated without notifications, and the author is not responsible for any consequences that copy or run the codes in the tutorial, if any.</span>
+          <hr/>
+          <span><b>Go to chapter: </b></span>
+          <select onChange="window.location.href=this.value">
+            <option value="chapter_1.html">Chapter 1 : Introduction</option>
+            <option value="chapter_2.html">Chapter 2 : Draw something on browsers using canvas element</option>
+            <option value="chapter_3.html" selected disabled>Chapter 3 : Move the circle</option>
+            <option value="chapter_4.html">Chapter 4 : Circle-circle collision detection</option>
+            <option value="chapter_5.html">Chapter 5 : Circle-circle collision response</option>
+            <option value="chapter_6.html">Chapter 6 : Use array to avoid repeating codes</option>
+            <option value="chapter_7.html">Chapter 7 : Circles and fixed circles collision</option>
+            <option value="chapter_8.html">Chapter 8 : Circles and fixed points, lines and fixed polygons collision</option>
+            <option value="chapter_9.html">Chapter 9 : Test all objects working together and remove debug drawings</option>
+          </select>
+          <hr/>
+          <button onclick="window.location.href='#top'">▲ Go back to top ▲</button>&nbsp<span><b>Move to section</b>:
+            <select onChange="window.location.href=this.value">
+              <option value="#section_1">3.1 Introduction to setInterval()</option>
+              <option value="#section_2">3.2 Changes from updating the text to updating the circle position</option>
+              <option value="#section_3">3.3 Smoother motion : Update the position more frequently by introducing frame rate</option>
+              <option value="#section_4">3.4 Refactor the code : extract all properties of circles as variables</option>
+              <option value="#section_5">3.5 Draw 2 moving circles</option>
+              <option value="#section_6">3.6 Refactor the code : define circles as Javascript objects</option>
+            </select>
+          </span>
+        </td>
+      </tr>
+      <tr style="width:width:100%;height:100%;">
+        <td style="width:100%;height:100%;"><div style="background-color:white;overflow-x:auto;overflow-y:scroll;width:width:100%;height:100%;padding-left:0.5em;">
+          <div id="top"></div> 
+    <h1 style="text-align:center;">Chapter 3 : Move the circle</h1>
+    <hr class="hr1"/>
+    <h2 id="section_1">3.1 Introduction to setInterval()</h2>
+    <p>At former chapter, we learned how to draw something on a canvas. However, the drawings are static, which debugging a physics engine needs displaying moving things. So in this chapter we would transform the static circle to a moving one!</p>
+    <p>To move the circle, <code>setInterval()</code> is the key function that we need to know. It allows to call a function repeatly every some seconds. So, let we try our first setInterval() method! </p>
+    <p>First, we would try showing some text that automatically updates on the canvas. Open a new HTML file, paste the code at the following:</p>
+    <div class="codeParentDiv" style="height:20em"><div class="hljs copyborder" style="position:absolute;"><pre><code><span class="hl">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
+&lt;script&gt;</span>
+<span class="hl">  let cx=20;
+  let cy=50;
+  const canvas = document.getElementById("myCanvas");
+  const ctx = canvas.getContext("2d");
+  ctx.font="16px sans-serif";
+  ctx.textAlign="center";
+  setInterval(function(){
+    //cx,cy value update
+    cx+=60;
+    cy+=30;
+
+    //draw text
+    ctx.fillText(cx+","+cy,200,200);
+  },1000);</span>
+<span class="hl">&lt;/script&gt;</span></code></pre></div></div>
+    <p>When you open the browser, you should able to see some text is continueously adding to the canvas (Start adding text after 1 second delay).</p>
+    <p>The code is repeatly updating the values of cx (+60 per second) and cy (+30 per second), and then the code <code>ctx.fillText(cx+","+cy,200,200);</code> draws the text on the canvas:</p>
+    <iframe id="iframe-chapter_3_1_1-1" class="center" src="chapter_3_1_1.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <button class="center" onclick="document.getElementById('iframe-chapter_3_1_1-1').src+='';">Reload</button>
+    <p>The code that repeatly running is written inside <code>function(){...}</code>, which the function itself is the first parameter of <code>setInterval()</code> function. The second parameter, <code>1000</code>, indicates that we want to repeat the function for every 1 second (<b>1000</b> miliseconds). So if you want to repeat it faster, for example, 0.01 seconds, you have to multiply it by 1000 and pass 10 as the parameter.</p>
+    <p>However, it is not the effect that we want : we want the text contineously updating instead of adding a new text each time. To show updating text instead of overlapped text, there is one additional step to do : clean the canvas before drawing each time! To clear the drawings, add <code>ctx.clearRect(0,0,canvas.width,canvas.height);</code> as the following:</p>
+    <div class="codeParentDiv" style="height:24em"><div class="hljs copyborder" style="position:absolute;">
+        <pre><code><span class="hl">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
+&lt;script&gt;</span>
+<span class="hl">  let cx=20;
+  let cy=50;
+  const canvas = document.getElementById("myCanvas");
+  const ctx = canvas.getContext("2d");
+  ctx.font="16px sans-serif";
+  ctx.textAlign="center";
+  setInterval(function(){
+    //cx,cy value update
+    cx+=60;
+    cy+=30;
+
+    //clear all drawings
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    //draw text
+    ctx.fillText(cx+","+cy,200,200);
+  },1000);</span>
+<span class="hl">&lt/script&gt</span></code></pre>
+        <div class="dimdiv">
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+        </div>
+    </div></div>
+    <p>Now the canvas should looks like updating the text for every 1 second instead of adding a new text each time:</p>
+    <iframe id="iframe-chapter_3_1_2-1" class="center" src="chapter_3_1_2.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <button class="center" onclick="document.getElementById('iframe-chapter_3_1_2-1').src+='';">Reload</button>
+    <hr class="hr1"/>
+    <h2 id="section_2">3.2 Changes from updating the text to updating the circle position</h2>
+    <p>Now we know we can repeat updating the text drawn on canvas, lets change the content to update from the text to circle position!</p>
+    <p>To achieve this, we would replace <code>ctx.fillText(cx+","+cy,200,200);</code> with the circle drawing code at previous chapter, also delete the line of code <code>ctx.font="16px sans-serif";</code> and <code>ctx.textAlign="center";</code> that was used to specify the style of text as we don't need it currently, the example is modified as the following:</p>
+    <div class="codeParentDiv" style="height:38em"><div class="hljs copyborder" style="position:absolute;">
+        <pre><code><span class="hl">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
+&lt;script&gt;</span>
+<span class="hl">  let cx=20;
+  let cy=50;
+  const canvas = document.getElementById("myCanvas");
+  const ctx = canvas.getContext("2d");
+  setInterval(function(){
+    //circle position update
+    cx+=60;
+    cy+=30;
+
+    //clear all drawings
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    //draw x and y axis
+    ctx.strokeStyle="lightgray";
+    ctx.beginPath();
+    ctx.moveTo(0,canvas.height/2);
+    ctx.lineTo(canvas.width,canvas.height/2);
+    ctx.moveTo(canvas.width/2,0);
+    ctx.lineTo(canvas.width/2,canvas.height);
+    ctx.stroke();
+    ctx.strokeStyle="black";
+
+    //draw border
+    ctx.beginPath();
+    ctx.rect(0,0,canvas.width,canvas.height);
+    ctx.stroke();
+
+    //draw circle
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+cx,canvas.height/2-cy,30,0,2*Math.PI);
+    ctx.stroke();
+  },1000);</span>
+<span class="hl">&lt/script&gt</span></code></pre>
+        <div class="dimdiv">
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+        </div>
+    </div></div>
+    <p>Now you should see the circle is changing its position for every 1 second:</p>
+    <iframe id="iframe-chapter_3_2_1-1" class="center" src="chapter_3_2_1.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <br/><button class="center" onclick="document.getElementById('iframe-chapter_3_2_1-1').src+='';">Reload</button>
+    <p>The key of the change is, we replace <code>ctx.fillText(cx+","+cy,200,200);</code> with drawing circle code : <code>ctx.arc(canvas.width/2+cx,canvas.height/2-cy,30,0,2*Math.PI);</code>, so this time we see the circle position is updating instead of the text updating.</p>
+    <p>Recall the example before that updates the text at the following rate:</p>
+    <ul>
+      <li>Value of <code>cx</code> is increasing <b>60</b> per second (80,140,...)</li>
+      <li>Value of <code>cy</code> is increasing <b>30</b> per second (110,170,...)</li>
+    </ul>
+    <p>So when it changes to updating the position of the circle, it becomes:</p>
+        <ul>
+      <li>Position of circle : <code>cx</code> <b>+60</b> px at each second : velocity of x is <b>+60</b> px per second</li>
+      <li>Position of circle : <code>cy</code> <b>+30</b> px at each second : velocity of y is <b>+30</b> px per second</li>
+    </ul>
+    <p>Instead of meters per second, the velocity at the canvas is defined as <b>px per second</b>, simply means <b>travelling n px after 1 second</b>.</p>
+    <hr class="hr1"/>
+    <h2 id="section_3">3.3 Smoother motion : Update the position more frequently by introducing frame rate</h2> 
+    <p>The circle above is changing the position, but it looks like teleporting instead of moving. Why? Because the canvas needs to update more frequently : The case needs to change from</p>
+    <ul>
+      <li>update <b>once</b> per second, x increases <b>60</b> px and y increases <b>30</b> px at each update</li>
+    </ul> 
+    <p>to:</p>
+    <ul>
+      <li>update <b>twice</b> per <b>0.5</b> seconds, x increases <b>30</b> px and y px increases <b>15</b> at each update</li>
+      <li>update <b>third times</b> per <b>0.333...</b> seconds, x increases <b>20</b> px and y px increases <b>10</b> at each update</li>
+      <li>...</li>
+      <li>update <b>60</b> times per <b>1/60</b> seconds, x increases <b>1</b> px and y increases <b>0.5</b> px at each update</li>
+      <li>...</li>
+      <li>update <b>n</b> times per <b>1/n</b> seconds, x increases <b>60/n</b> px and y increases <b>30/n</b> px at each update</li>
+    </ul>
+    <p>While all the cases above has a same property : after <b>1</b> second, x would finally increase <b>60</b> and y would finally increase <b>30</b>, the latter cases update more frequently but x and y increases less! That is the concept of increasing frame rate : While keeping the visual moving velocity unchanged, the canvas updates more frequently!</p>
+    <p>To see the effect of the cases, we set <code>n=60</code>, which is the currently commonly using frame rates of some mobile phones.</p>
+    <p>We would change <code>cx+=60;</code> to <code>cx+=60*1/n;</code>, also change <code>cy+=30;</code> to <code>cy+=30*1/n;</code>, and the <code>setInterval()</code> time changes from <code>1000</code> to <b>1000/n</b>,indicates we want to update the function per <b>1/n</b> seconds.</p>
+    <p>So why would we change <code>cx+=60;</code> to <code>cx+=60*1/n;</code>, instead of simply change to <code>cx+=60/n;</code>? Because <code>cx+=60*1/n;</code> is more similar to the physics equation, easier to understand what it is:</p>
+    <ul>
+      <li>distance = velocity * time</li>
+    </ul> 
+    <p>At the canvas update code, it becomes:</p>
+    <ul>
+      <li>px moved = velocity * time elasped</li>
+    </ul>
+    <p>At our case, <code>cx</code> it becomes (similar for <code>cy</code>):</p> 
+    <ul>
+      <li>px moved = 60 * 1/n</li>
+    </ul>
+    <p>Which the time elapsed is 1/n. So at former examples, why is just <code>cx+=60;</code> instead of something like <code>cx+=60*time;</code>? Because at earier examples, we update the canvas per 1 second, which the time equals to 1 actually, so the x distance traveled (<code>cx</code> increased) is <b>60*1</b> and is numerically equals to adding the velocity <b>60</b> directly! Now we would set a different time. First, refactor the code as the following:</p>
+    <div class="codeParentDiv" style="height:38em"><div class="hljs copyborder" style="position:absolute;">
+        <pre><code><span class="hl">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
+&lt;script&gt;</span>
+<span class="hl">  let cx=20;
+  let cy=50;
+  const canvas = document.getElementById("myCanvas");
+  const ctx = canvas.getContext("2d");
+  const frameRate=1;
+  setInterval(function(){
+    //circle position update
+    cx+=60*1/frameRate;
+    cy+=30*1/frameRate;
+
+    //clear all drawings
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    //draw x and y axis
+    ctx.strokeStyle="lightgray";
+    ctx.beginPath();
+    ctx.moveTo(0,canvas.height/2);
+    ctx.lineTo(canvas.width,canvas.height/2);
+    ctx.moveTo(canvas.width/2,0);
+    ctx.lineTo(canvas.width/2,canvas.height);
+    ctx.stroke();
+    ctx.strokeStyle="black";
+
+    //draw border
+    ctx.beginPath();
+    ctx.rect(0,0,canvas.width,canvas.height);
+    ctx.stroke();
+
+    //draw circle
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+cx,canvas.height/2-cy,30,0,2*Math.PI);
+    ctx.stroke();
+  },1000/frameRate);</span>
+<span class="hl">&lt/script&gt</span></code></pre>
+        <div class="dimdiv">
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>          
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+        </div>
+    </div></div>
+    <p>When we run the code above, it should show the result the same as the version before refactoring. But now, we added a new variable <code>frameRate</code>, which we are ready to change it from 1 to 60 later. As mentioned before, <code>60*1/frameRate</code> means velocity*time, and <code>1000/frameRate</code> means 'Update <code>frameRate</code> times per second'.</p>
+    <p>So after talking a lot about frame rates, we can finally get a smoother animation by changing the time from <b>1</b> to <b>60</b> : modify the code as the following:</p>
+    <div class="codeParentDiv" style="height:39em"><div class="hljs copyborder" style="position:absolute;">
+        <pre><code><span class="hl">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
+&lt;script&gt;</span>
+<span class="hl">  let cx=20;
+  let cy=50;
+  const canvas = document.getElementById("myCanvas");
+  const ctx = canvas.getContext("2d");
+  const frameRate=60;
+  setInterval(function(){
+    //circle position update
+    cx+=60*1/frameRate;
+    cy+=30*1/frameRate;
+
+    //clear all drawings
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    //draw x and y axis
+    ctx.strokeStyle="lightgray";
+    ctx.beginPath();
+    ctx.moveTo(0,canvas.height/2);
+    ctx.lineTo(canvas.width,canvas.height/2);
+    ctx.moveTo(canvas.width/2,0);
+    ctx.lineTo(canvas.width/2,canvas.height);
+    ctx.stroke();
+    ctx.strokeStyle="black";
+
+    //draw border
+    ctx.beginPath();
+    ctx.rect(0,0,canvas.width,canvas.height);
+    ctx.stroke();
+
+    //draw circle
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+cx,canvas.height/2-cy,30,0,2*Math.PI);
+    ctx.stroke();
+  },1000/frameRate);</span>
+<span class="hl">&lt/script&gt</span></code></pre>
+        <div class="dimdiv">
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>          
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+        </div>
+    </div></div>
+    <p>Now the canvas should show a smooth moving circle as the following:</p>
+    <iframe id="iframe-chapter_3_3_1-1" class="center" src="chapter_3_3_1.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <br/><button class="center" onclick="document.getElementById('iframe-chapter_3_3_1-1').src+='';">Reload</button>
+    <p>So to conclude, to keep the velocity unchanged but get a smoother animation, the key is to move less at each time but update more frequenty. The following shows the frame rate <b>1</b> and <b>60</b>, which you may see the difference more clearly:</p>
+    <table border="1" style="margin-left:auto;margin-right:auto;">
+      <tr>
+        <th>Frame rate = 1</th>
+        <th>Frame rate = 60</th>
+      </tr>
+      <tr>
+        <td>
+          <iframe id="iframe-chapter_3_2_1-2" src="chapter_3_2_1.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+        <td>
+          <iframe id="iframe-chapter_3_3_1-2" src="chapter_3_3_1.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+      </tr>
+    </table>
+    <br/><button class="center" onclick="document.getElementById('iframe-chapter_3_2_1-2').src+='';document.getElementById('iframe-chapter_3_3_1-2').src+='';">Reload</button>
+    <hr class="hr1"/>
+    <h2 id="section_4">3.4 Refactor the code : extract all properties of circles as variables</h2>
+    <p>At the examples above, we may conclude that a circle have the following properties:</p>
+    <ul>
+      <li>position x (already defined <code>cx</code> in code)</li>
+      <li>position y (already defined <code>cy</code> in code)</li>
+      <li>radius</li>
+      <li>x velocity</li>
+      <li>y velocity</li>
+    </ul>
+    <p>At the examples above, we store the x and y position of circle as variables : <code>cx</code> and <code>cy</code>, but radius, x and y velocity are hardcoded values instead of being variables. In order to define the circle properties with a better readability code, also for us to define multiple circles later more clearly, we would refactor the code so that all properties of circles would be held with variables! The hardcoded properties to refactor:</p>
+    <ul>
+      <li>radius <code>r</code></li>
+      <li>x velocity <code>vx</code></li>
+      <li>y velocity <code>vy</code></li>
+    </ul>
+    <p>Refactor the code as the following:</p>
+    <div class="codeParentDiv" style="height:41em"><div class="hljs copyborder" style="position:absolute;">
+        <pre><code><span class="hl">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
+&lt;script&gt;</span>
+<span class="hl">  let cx=20;
+  let cy=50;
+  let r=30;
+  let vx=60;
+  let vy=30;
+  const canvas = document.getElementById("myCanvas");
+  const ctx = canvas.getContext("2d");
+  const frameRate=60;
+  setInterval(function(){
+    //circle position update
+    cx+=vx*1/frameRate;
+    cy+=vy*1/frameRate;
+
+    //clear all drawings
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    //draw x and y axis
+    ctx.strokeStyle="lightgray";
+    ctx.beginPath();
+    ctx.moveTo(0,canvas.height/2);
+    ctx.lineTo(canvas.width,canvas.height/2);
+    ctx.moveTo(canvas.width/2,0);
+    ctx.lineTo(canvas.width/2,canvas.height);
+    ctx.stroke();
+    ctx.strokeStyle="black";
+
+    //draw border
+    ctx.beginPath();
+    ctx.rect(0,0,canvas.width,canvas.height);
+    ctx.stroke();
+
+    //draw circle
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+cx,canvas.height/2-cy,r,0,2*Math.PI);
+    ctx.stroke();
+  },1000/frameRate);</span>
+<span class="hl">&lt/script&gt</span></code></pre>
+        <div class="dimdiv">
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>          
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+        </div>
+    </div></div>
+    <p>Now the circle properties are defined together:</p>
+    <div class="codeParentDiv" style="height:8em"><div class="hljs readborder" style="position:absolute;"><pre><code><span class="hl">let cx=20;
+let cy=50;
+let r=30;
+let vx=60;
+let vy=30;</span></code></pre></div></div>
+    <hr class="hr1"/>
+    <h2 id="section_5">3.5 Draw 2 moving circles</h2>
+    <p>At the examples above, we draw 1 circle only. Now we would add another circle, so we need to add another set of circle properties. We would add a suffix to the variables of new circle properties:</p>
+    <div class="codeParentDiv" style="height:9em"><div class="hljs readborder" style="position:absolute;"><pre class="hljs codepadding"><code><span class="hljs hl">let cx2=150;
+let cy2=100;
+let r2=20;
+let vx2=-10;
+let vy2=-20;</span></code></pre></div></div>
+    <p>Modify the code as the following:</p>
+    <div class="codeParentDiv" style="height:55em"><div class="hljs copyborder" style="position:absolute;">
+        <pre><code><span class="hl">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
+&lt;script&gt;</span>
+<span class="hl">  let cx=20;
+  let cy=50;
+  let r=30;
+  let vx=60;
+  let vy=30;
+
+  let cx2=150;
+  let cy2=100;
+  let r2=20;
+  let vx2=-10;
+  let vy2=-20;
+
+  const canvas = document.getElementById("myCanvas");
+  const ctx = canvas.getContext("2d");
+  const frameRate=60;
+  setInterval(function(){
+    cx+=vx*1/frameRate;
+    cy+=vy*1/frameRate;
+
+    cx2+=vx2*1/frameRate;
+    cy2+=vy2*1/frameRate;
+
+    //clear all drawings
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    //draw x and y axis
+    ctx.strokeStyle="lightgray";
+    ctx.beginPath();
+    ctx.moveTo(0,canvas.height/2);
+    ctx.lineTo(canvas.width,canvas.height/2);
+    ctx.moveTo(canvas.width/2,0);
+    ctx.lineTo(canvas.width/2,canvas.height);
+    ctx.stroke();
+    ctx.strokeStyle="black";
+
+    //draw border
+    ctx.beginPath();
+    ctx.rect(0,0,canvas.width,canvas.height);
+    ctx.stroke();
+
+    //draw circle
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+cx,canvas.height/2-cy,r,0,2*Math.PI);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+cx2,canvas.height/2-cy2,r2,0,2*Math.PI);
+    ctx.stroke();
+  },1000/frameRate);</span>
+<span class="hl">&lt/script&gt</span></code></pre>
+        <div class="dimdiv">
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>          
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>          
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+        </div>
+    </div></div>
+    <p>It should displays a bigger and a smaller circles approaching together, then overlaps and then move apart from others as the following:</p>
+    <iframe id="iframe-chapter_3_5_1-1" class="center" src="chapter_3_5_1.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <br/><button class="center" onclick="document.getElementById('iframe-chapter_3_5_1-1').src+='';">Reload</button>
+    <p>So this example should be straightforward : just add a new set of circle properties and also add the code to update and draw that new circle. Then why don't 2 circles 'collide'? Because we have not add the code to handle that! But it would be done at next chapters! Before that, we would refactor the code again so that the circle collision code to add in the future would have better readability.</p>
+    <hr class="hr1"/>
+    <h2 id="section_6">3.6 Refactor the code : define circles as Javascript objects</h2>
+    <p>While the code above displays 2 moving circles perfectly, the circle definition seems looks a bit ugly : if more circles are defined, it would have tons of variables like <code>cx2</code>,<code>cx3</code>,<code>cx4</code>...! Also, when we see <code>cx2</code>, <code>cy2</code>, <code>r2</code>..., it is not easy to realize they are properties of the same circle. So, how to improve the readability of the list of properties? The answer is, define them within an object! Refactor the code as the following:</p>
+    <div class="codeParentDiv" style="height:58em"><div class="hljs copyborder" style="position:absolute;">
+        <pre><code><span class="hl">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
+&lt;script&gt;</span>
+<span class="hl">  const c1={
+    cx:20,
+    cy:50,
+    r:30,
+    vx:60,
+    vy:30
+  };
+
+  const c2={
+    cx:150,
+    cy:100,
+    r:20,
+    vx:-10,
+    vy:-20
+  };
+
+  const canvas = document.getElementById("myCanvas");
+  const ctx = canvas.getContext("2d");
+  const frameRate=60;
+  setInterval(function(){
+    //circle position update
+    c1.cx += c1.vx * 1 / frameRate;
+    c1.cy += c1.vy * 1 / frameRate;
+    c2.cx += c2.vx * 1 / frameRate;
+    c2.cy += c2.vy * 1 / frameRate;
+
+    //clear all drawings
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    //draw x and y axis
+    ctx.strokeStyle="lightgray";
+    ctx.beginPath();
+    ctx.moveTo(0,canvas.height/2);
+    ctx.lineTo(canvas.width,canvas.height/2);
+    ctx.moveTo(canvas.width/2,0);
+    ctx.lineTo(canvas.width/2,canvas.height);
+    ctx.stroke();
+    ctx.strokeStyle="black";
+
+    //draw border
+    ctx.beginPath();
+    ctx.rect(0,0,canvas.width,canvas.height);
+    ctx.stroke();
+
+    //draw circle
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+c1.cx,canvas.height/2-c1.cy,c1.r,0,2*Math.PI);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(canvas.width/2+c2.cx,canvas.height/2-c2.cy,c2.r,0,2*Math.PI);
+    ctx.stroke();
+  },1000/frameRate);</span>
+<span class="hl">&lt/script&gt</span></code></pre>
+        <div class="dimdiv">
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>          
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+        </div>
+    </div></div>
+    <p>Now we define 2 circles : <code>c1</code> and <code>c2</code> with javascript objects:</p>
+    <div class="codeParentDiv" style="height:18em"><div class="hljs readborder" style="position:absolute;"><pre><code><span class="hl">const c1={
+  cx:20,
+  cy:50,
+  r:30,
+  vx:60,
+  vy:30
+};
+
+const c2={
+  cx:150,
+  cy:100,
+  r:20,
+  vx:-10,
+  vy:-20
+};</span></code></pre></div></div>
+    <p>The prefix <code>c</code> in the name <code>c1</code> means circle. When we access the properties of a circle:</p>
+    <div class="codeParentDiv" style="height:16em"><div class="hljs readborder" style="position:absolute;"><pre><code><span class="hl">c1.cx += c1.vx * 1 / frameRate;
+c1.cy += c1.vy * 1 / frameRate;
+.
+.
+.
+ctx.arc(canvas.width/2+c1.cx,canvas.height/2-c1.cy,c1.r,0,2*Math.PI);
+.
+.
+.
+ctx.arc(canvas.width/2+c2.cx,canvas.height/2-c2.cy,c2.r,0,2*Math.PI);
+.
+.
+.
+</span></code></pre></div></div>
+    <p>We just add a dot (.) between the object name and the property, for example : <code>c1.cx</code>, which is as natural as saying <b>"c1's cx"</b> and thus improving the readability.</p>
+    <p>We are able to draw 2 moving circles, also we defined the circles with objects instead of list of variables. So we can start handling collisions by adding more codes on the example above later!</p>
+        </div></td>
+      </tr>
+    </table>
+  </body>
+  <script src="highlight/highlight.min.js"></script>
+  <script>
+  document.querySelectorAll('.hl').forEach(el => {
+    hljs.highlightElement(el);
+  });
+  </script>
+</html>
