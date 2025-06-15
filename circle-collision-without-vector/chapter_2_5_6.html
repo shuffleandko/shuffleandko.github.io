@@ -2,6 +2,9 @@
 <script>
   const canvas = document.getElementById("myCanvas");
   const ctx = canvas.getContext("2d");
+  ctx.beginPath();
+  ctx.rect(0,0,canvas.width,canvas.height);
+  ctx.stroke();
 
   //draw x and y axis
   ctx.strokeStyle="lightgray";
@@ -13,13 +16,7 @@
   ctx.stroke();
   ctx.strokeStyle="black";
 
-  //draw canvas border
   ctx.beginPath();
-  ctx.rect(0,0,canvas.width,canvas.height);
-  ctx.stroke();
-
-  //draw circle
-  ctx.beginPath();
-  ctx.arc(100 + canvas.width/2,canvas.height - 150 - canvas.height/2,30,0,2*Math.PI);
+  ctx.arc(0+canvas.width/2,canvas.height-0-canvas.height/2,30,0,2*Math.PI);
   ctx.stroke();
 </script>

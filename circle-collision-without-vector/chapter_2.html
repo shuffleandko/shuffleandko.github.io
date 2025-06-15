@@ -85,7 +85,7 @@
     <h2 id="section_1">2.1 Create a html page with a canvas</h2>
     <p>To build a physics engine, drawing and rendering what you built is the basic skill that need to learn, so the first thing to do is drawing something on browsers with HTML element <code>&ltcanvas&gt</code>.</p>
     <p><code>&ltcanvas&gt</code> is a rectangular area that allows you to draw something on a web page. </p>
-    <p>First, create a new blank html file <code>physics_engine.html</code>, then copy and paste the following HTML into the file:<br/>
+    <p>First, create a new blank html file <code>index.html</code>, then copy and paste the following HTML into the file:<br/>
     <div class="codeParentDiv" style="height:5em"><div class="hljs copyborder" style="position:absolute;">
       <pre><code><span class="hl">&ltcanvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt</span></code></pre>
     </div></div>
@@ -165,6 +165,8 @@ ctx.stroke();</span></code></pre></div></div>
     <p>Congratulations! you have learned about basic drawings on the browsers, which is useful to visualize and debug your code later!
     <hr class="hr1"/>
     <h2 id="section_4">2.4 Better for mathematics related debugging : transform the canvas coordinate system to Cartesian coordinate system</h2>
+    <p>Currently the circle is drawn on the top left of the canvas, which uses the canvas coordinate system directly:</p>
+    <iframe class="center" src="chapter_2_3_1.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
     <p>The canvas coordinate system is different from the Cartesian coordinate system which we usually use in mathematics. When position y increases, in the canvas, the circle starts from top then shifts downwards, while in Cartesian coordinate system it starts from the bottom and then shifts upwards:</p>
     <table border="1" style="margin-left:auto;margin-right:auto;">
       <tr>
@@ -180,7 +182,9 @@ ctx.stroke();</span></code></pre></div></div>
         </td>
       </tr>
     </table>
-    <p>To have better debugging environment, we have to transform the canvas coordinate system into Cartesian coordinate system so that when we draw a circle at <b>(100,150)</b>, the circle would appear at the bottom left instead of the top left. Modify the code as the following:</p>
+    <p>To have better debugging environment, we have to <b>transform the canvas coordinate system into Cartesian coordinate system</b> so that when we draw a circle at <b>(100,150)</b>, the circle would appear at the bottom left instead of the top left:</p>
+    <iframe class="center" src="chapter_2_4_3.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <p>Modify the code as the following:</p>
     <div class="codeParentDiv" style="height:18em"><div class="hljs copyborder" style="position:absolute;">
       <pre><code><span class="hl">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
 &lt;script&gt;</span>
@@ -216,9 +220,9 @@ ctx.stroke();</span></code></pre></div></div>
           <code class="dimcode">&nbsp;</code>
         </div>
     </div></div>
-    <p>The y position parameter is changed from <code>150</code> to <code>canvas.height-150</code>, which <code>canvas.height</code> is the height of the canvas defined at the <code>canvas</code> tag (<code>height="400"</code>). Now the circle should show at the bottom left as the following:</p>
+    <p>The y position parameter is changed from <code>150</code> to <code>canvas.height - 150</code>, which <code>canvas.height</code> is the height of the canvas defined at the <code>canvas</code> tag (<code>height="400"</code>). Now the circle should show at the bottom left as the following:</p>
     <iframe class="center" src="chapter_2_4_3.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
-    <p>The key of the transformation is <code>canvas.height-150</code>, which converts the y position of Cartesian coordinate system into y position of canvas coordinate system by mirroring the y position : starting y changes from <b>0</b> to <b>400</b>, then the y location also mirrored as changing from <b>150</b> to <b>-150</b>. When we specifiy we want to draw at position <b>(100,150)</b>, it actually draws on position <b>(100,400-150)</b> = <b>(100,250)</b> on the canvas, resulting as if the canvas is using Cartesian coordinate system:</p>
+    <p>In simple, the conversion means : <b>When we want to draw a circle at (100 , 150) , we actually draw it at (100 , canvas.height-150)</b>:</p>
     <iframe class="center" src="chapter_2_4_4.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
     <hr class="hr1"/>
     <h2 id="section_5">2.5 Transform the origin from the bottom left to the middle of the canvas</h2>
@@ -260,7 +264,9 @@ ctx.stroke();</span></code></pre></div></div>
     </div></div>
     <p>Now the circle is at the positon (0,0), which lies on the bottom left of the canvas as the following:</p>
     <iframe class="center" src="chapter_2_5_1.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
-    <p>The circle is clipped, which shows a quarter of the circle only when it lies on the origin. Why would we want to move the origin? Because at later examples, we would often start with placing a circle in the origin, it is easier for calculating and also more convenient to see the whole circle for debugging. So we would now move the origin from bottom left to middle so that when we draw a circle at <b>(0,0)</b>, it actually draws on the middle instead of at bottom left:</p>
+    <p>However, we would like to <b>move the origin to the center of the canvas so that when the circle is at (0,0) , it is drawn at the center of the canvas</b>:</p>
+    <iframe class="center" src="chapter_2_5_4.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <p>Why would we want to move the origin? Because at later examples, we would often start with placing a circle in the origin, it is easier for calculating and also more convenient to see the whole circle for debugging. So we would now move the origin from bottom left to middle so that when we draw a circle at <b>(0,0)</b>, it actually draws on the middle instead of at bottom left:</p>
     <table border="1" style="margin-left:auto;margin-right:auto;">
       <tr>
         <th>Origin at bottom left</th>
@@ -275,6 +281,9 @@ ctx.stroke();</span></code></pre></div></div>
         </td>
       </tr>
     </table>
+    <p>So how can we shift the origin?</p>
+    <p>The answer is : <b>shift x for canvas.width/2 and shift y for - canvas.height / 2</b>:</p>
+    <iframe class="center" src="chapter_2_5_5.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
     <p>Modify the code as the following:</p>
     <div class="codeParentDiv" style="height:18em"><div class="hljs copyborder" style="position:absolute;">
       <pre><code><span class="hl">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
@@ -289,7 +298,7 @@ ctx.stroke();</span></code></pre></div></div>
 
   //draw circle
   ctx.beginPath();
-  ctx.arc(canvas.width/2+0,canvas.height-canvas.height/2-0,30,0,2*Math.PI);
+  ctx.arc(0 + canvas.width/2,canvas.height - 0 - canvas.height/2,30,0,2*Math.PI);
   ctx.stroke();</span>
 <span class="hl">&lt/script&gt</span></code></pre>
          <div class="dimdiv">
@@ -313,11 +322,10 @@ ctx.stroke();</span></code></pre></div></div>
     </div></div>
     <p>Now the circle should lie at the center of the canvas:</p>
     <iframe class="center" src="chapter_2_5_4.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
-    <p>The key of shifting the origin is, we changed the drawing position from <code>0,canvas.height-0</code> to <code>canvas.width/2+0,canvas.height-canvas.height/2-0</code> : when we specify drawing on position <b>(0,0)</b>, we are actually drawing at positon <b>(200+0,400-200-0)</b> = <b>(200,200)</b> on the canvas, resulting acting the origin of the canvas is at the middle:</p>
-    <iframe class="center" src="chapter_2_5_5.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
-    <hr class="hr1"/>
-    <h2 id="section_6">2.6 Draw circle at old position again under the new coordinate system</h2>
-    <p>Modify the code as the following, this time we add 2 lines to show x and y axis (the line that shows x=0 and y=0), also change the position of circle to <b>(100,150)</b> again:</p>
+    <p>So, in simple, the principle of shifting the origin is : <b>at the current drawing position , shift the position by (canvas / 2 , - canvas / 2)</b>!</p>
+    <p>To see the origin more clearly, we would add 2 lines : x-axis and y-axis into the canvas:</p>
+    <iframe class="center" src="chapter_2_5_6.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+
     <div class="codeParentDiv" style="height:28em"><div class="hljs copyborder" style="position:absolute;">
         <pre><code><span class="hl">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
 &lt;script&gt;</span>
@@ -341,7 +349,7 @@ ctx.stroke();</span></code></pre></div></div>
 
   //draw circle
   ctx.beginPath();
-  ctx.arc(canvas.width/2+100,canvas.height-canvas.height/2-150,30,0,2*Math.PI);
+  ctx.arc(0 + canvas.width/2,canvas.height - 0 - canvas.height/2,30,0,2*Math.PI);
   ctx.stroke();</span>
 <span class="hl">&lt/script&gt</span></code></pre>
          <div class="dimdiv">
@@ -368,14 +376,13 @@ ctx.stroke();</span></code></pre></div></div>
           <code class="dimcode">&nbsp;</code>
           <code class="dimcode">&nbsp;</code>
           <code class="dimcode">&nbsp;</code>
-          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
           <code class="dimcode">&nbsp;</code>
           <code class="dimcode">&nbsp;</code>
         </div>
     </div></div>
-    <p>This time we added 2 light gray lines on the canvas, showing the x and y axis as well as the origin at the middle by the following code:</p>
-    <div class="codeParentDiv" style="height:12em"><div class="hljs readborder" style="position:absolute;">
-      <pre><code><span class="hl"> //draw x and y axis
+    <p>We added the following codes to draw x-axis and y axis:</p>
+    <div class="codeParentDiv" style="height:12em"><div class="hljs readborder" style="position:absolute;"><pre><code><span class="hl">//draw x and y axis
 ctx.strokeStyle="lightgray";
 ctx.beginPath();
 ctx.moveTo(0,canvas.height/2);
@@ -383,15 +390,107 @@ ctx.lineTo(canvas.width,canvas.height/2);
 ctx.moveTo(canvas.width/2,0);
 ctx.lineTo(canvas.width/2,canvas.height);
 ctx.stroke();
-ctx.strokeStyle="black";
-</span></code></pre></div></div>
-    <p>The last line : <code>ctx.strokeStyle="black";</code> indicates that we would switch the drawing color back to black (as the default) later. The light gray lines would be helpful for us to calculate or debug later. The position of the circle should be changed to <b>(100,150)</b> as the following:</p>
+ctx.strokeStyle="black";</span></code></pre></div></div>
+    <p>Note that we changed the drawing color to <code>lightgray</code> in order to draw the axis in light gray color. Then we revert back the drawing color to <code>black</code> for the remaining drawing code.</p>
+    <hr class="hr1"/>
+    <h2 id="section_6">2.6 Draw circle at old position again under the new coordinate system</h2>
+    <p>At last section, we tested the position of the circle at origin (0,0). Now we would also test the position of the circle at <b>(100,150)</b> at former example:</p>
+    <table border="1" style="margin-left:auto;margin-right:auto;">
+      <tr>
+        <th>Circle at (0,0)</th>
+        <th>Circle at (100,150)</th>
+      </tr>
+      <tr>
+        <td>
+          <iframe src="chapter_2_5_6.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+        <td>
+          <iframe src="chapter_2_6_1.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+      </tr>
+    </table>
+    <p>Modify the code as the following, change the position of circle to <b>(100,150)</b> again:</p>
+    <div class="codeParentDiv" style="height:28em"><div class="hljs copyborder" style="position:absolute;">
+        <pre><code><span class="hl">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
+&lt;script&gt;</span>
+<span class="hl">  const canvas = document.getElementById(&quot;myCanvas&quot;);
+  const ctx = canvas.getContext(&quot;2d&quot;);
+
+  //draw x and y axis
+  ctx.strokeStyle="lightgray";
+  ctx.beginPath();
+  ctx.moveTo(0,canvas.height/2);
+  ctx.lineTo(canvas.width,canvas.height/2);
+  ctx.moveTo(canvas.width/2,0);
+  ctx.lineTo(canvas.width/2,canvas.height);
+  ctx.stroke();
+  ctx.strokeStyle="black";
+
+  //draw canvas border
+  ctx.beginPath();
+  ctx.rect(0,0,canvas.width,canvas.height);
+  ctx.stroke();
+
+  //draw circle
+  ctx.beginPath();
+  ctx.arc(100 + canvas.width/2,canvas.height - 150 - canvas.height/2,30,0,2*Math.PI);
+  ctx.stroke();</span>
+<span class="hl">&lt/script&gt</span></code></pre>
+         <div class="dimdiv">
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="showcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+          <code class="dimcode">&nbsp;</code>
+        </div>
+    </div></div>
+    <p>Now the circle should be at the bottom left of the top right grid, shown as the following:</p>
     <iframe class="center" src="chapter_2_6_1.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
-    <p>The key change is at the line <code>ctx.arc(canvas.width/2+100,canvas.height-canvas.height/2-150,30,0,2*Math.PI);</code> : when we specify drawing on position <b>(100,150)</b>, we are actually drawing on the canvas with position <code>(canvas.width/2+100,canvas.height-canvas.height/2-150)</code> = <b>(200+100,400-200-150)</b> = <b>(350,50)</b>, resulting as if the canvas is using Cartesian coordinate system with origin at the middle shown as the following:</p>
-    <iframe class="center" src="chapter_2_6_2.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <p>The key change is at the line <code>ctx.arc(100 + canvas.width/2,canvas.height - 150 - canvas.height/2,30,0,2*Math.PI);</code> : <b>at the original drawing position (100 , canvas.height - 150) , we shift this position by (canvas.width / 2 , - canvas.height / 2)</b>, shown as the following:</p>
+    <table border="1" style="margin-left:auto;margin-right:auto;">
+      <tr>
+        <th>Origin at bottom left</th>
+        <th>Origin at center</th>
+      </tr>
+      <tr>
+        <td>
+          <iframe src="chapter_2_6_3.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+        <td>
+          <iframe src="chapter_2_6_2.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+        </td>
+      </tr>
+    </table>
+    <p>We may summarize the changes of cooridinate system as the following:</p>
+    <ol>
+      <li>Original position : <b>(100 , 150)</b></li>
+      <li>Canvas coordinate system to Cartesian coordinate system : <b>(100 , canvas.height - 150)</b></li>
+      <li>Shift the origin from bottom left to center of the canvas : <b>(100 + canvas.width / 2, canvas.height - 150 - canvas.height / 2)</b></li>
+    </ol>
     <hr class="hr1"/>
     <h2 id="section_7">2.7 Refactor the code : change canvas.height-canvas.height/2 into canvas.height/2</h2>
-    <p>While keeping the drawings remain unchanged, at the line <code>ctx.arc(canvas.width/2+150,canvas.height-canvas.height/2-100,30,0,2*Math.PI);</code>, we may simply it as at the line <code>ctx.arc(canvas.width/2+150,canvas.height/2-100,30,0,2*Math.PI);</code> : </p>
+    <p>While keeping the drawings remain unchanged, at the line <code>ctx.arc(100 - canvas.width/2,canvas.height - 150 - canvas.height/2,30,0,2*Math.PI);</code>, we may simply it as at the line <code>ctx.arc(canvas.width/2+100,canvas.height/2-150,30,0,2*Math.PI);</code> : </p>
     <div class="codeParentDiv" style="height:28em"><div class="hljs copyborder" style="position:absolute;">
         <pre><code><span class="hl">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
 &lt;script&gt;</span>
@@ -415,7 +514,7 @@ ctx.strokeStyle="black";
 
   //draw circle
   ctx.beginPath();
-  ctx.arc(canvas.width/2+150,canvas.height/2-100,30,0,2*Math.PI);
+  ctx.arc(canvas.width/2+100,canvas.height/2-150,30,0,2*Math.PI);
   ctx.stroke();</span>
 <span class="hljs">&lt/script&gt</span></code></pre>
          <div class="dimdiv">
@@ -450,7 +549,7 @@ ctx.strokeStyle="black";
     <p>At the coming examples, the canvas would show the drawings using Cartesian coordinate system with the origin at the middle as the code above.</p>
     <hr class="hr1"/>
     <h2 id="section_8">2.8 Refactor the code : use variables to hold the position</h2>
-    <p>While we may change the position of the circle by editing the line <code>ctx.arc(canvas.width/2+150,canvas.height/2-100,30,0,2*Math.PI);</code>, it is not obvious to find which line stores the position of the circle, also at later examples, we may need to change the position dynamically, so it is better to represent the position by variables instead of hardcode the number at that line. Modify the code as the following:</p>
+    <p>While we may change the position of the circle by editing the line <code>ctx.arc(canvas.width/2+100,canvas.height/2-150,30,0,2*Math.PI);</code>, it is not obvious to find which line stores the position of the circle, also at later examples, we may need to change the position dynamically, so it is better to represent the position by variables instead of hardcode the number at that line. Modify the code as the following:</p>
     <div class="codeParentDiv" style="height:31em"><div class="hljs copyborder" style="position:absolute;">
         <pre><code><span class="hl">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
 &lt;script&gt;</span>
