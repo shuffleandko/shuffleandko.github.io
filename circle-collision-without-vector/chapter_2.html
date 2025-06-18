@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+ahtml>
   <head>
     <meta charset="UTF-8"/>
   </head>
@@ -161,7 +161,7 @@ ctx.stroke();</span></code></pre></div></div>
     </div></div>
     <p>The code above should show the following:</p>
     <iframe class="center" src="chapter_2_3_1.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
-    <p>The key of the code above is <code>ctx.arc(100,150,30,0,2*Math.PI);</code>, which specifies we want to draw a circle with center lies on position <b>(100,150)</b>, with radius <b>30</b>. The last 2 parameters, <code>0</code> and <code>2*Math.PI</code> means drawing an arc from radian 0 to 360. Alternatively, you may try changing it into <code>ctx.arc(100,150,30,0,Math.PI/2);</code>, which should draw an arc (a quarter of circle) instead of a complete circle.</p>
+    <p>The key of the code above is <code>ctx.arc(100,150,30,0,2*Math.PI);</code>, which specifies we want to draw a circle with center lies on position <b>(100,150)</b>, with radius <b>30</b>. The last 2 parameters, <code>0</code> and <code>2*Math.PI</code> means drawing an arc from 0 to 360 in degree (2*M.PI in radian is actually 360 in degree). Alternatively, you may try changing it into <code>ctx.arc(100,150,30,0,Math.PI/2);</code>, which should draw an arc (a quarter of circle) instead of a complete circle.</p>
     <p>Congratulations! you have learned about basic drawings on the browsers, which is useful to visualize and debug your code later!
     <hr class="hr1"/>
     <h2 id="section_4">2.4 Better for mathematics related debugging : transform the canvas coordinate system to Cartesian coordinate system</h2>
