@@ -251,35 +251,51 @@
     <p>Instead of meters per second, the velocity at the canvas is defined as <b>px per second</b>, simply means <b>travelling n px after 1 second</b>.</p>
     <hr class="hr1"/>
     <h2 id="section_3">3.3 Smoother motion : Update the position more frequently by introducing frame rate</h2> 
-    <p>The circle above is changing the position, but it looks like teleporting instead of moving. Why? Because the canvas needs to update more frequently : The case needs to change from</p>
+    <p>The circle above is changing the position, but it looks like teleporting instead of moving. Why? Because <b>the canvas needs to update more frequently</b> : currently we updates the canvas described as the following:</p>
     <ul>
-      <li>update <b>once</b> per second, x increases <b>60</b> px and y increases <b>30</b> px at each update</li>
+      <li>update <b>once</b> per second, <code>cx</code> increases <b>60</b> px and <code>cy</code> increases <b>30</b> px at each update</li>
     </ul> 
-    <p>to:</p>
-    <ul>
-      <li>update <b>twice</b> per <b>0.5</b> seconds, x increases <b>30</b> px and y px increases <b>15</b> at each update</li>
-      <li>update <b>third times</b> per <b>0.333...</b> seconds, x increases <b>20</b> px and y px increases <b>10</b> at each update</li>
-      <li>...</li>
-      <li>update <b>60</b> times per <b>1/60</b> seconds, x increases <b>1</b> px and y increases <b>0.5</b> px at each update</li>
-      <li>...</li>
-      <li>update <b>n</b> times per <b>1/n</b> seconds, x increases <b>60/n</b> px and y increases <b>30/n</b> px at each update</li>
-    </ul>
-    <p>While all the cases above has a same property : after <b>1</b> second, x would finally increase <b>60</b> and y would finally increase <b>30</b>, the latter cases update more frequently but x and y increases less! That is the concept of increasing frame rate : While keeping the visual moving velocity unchanged, the canvas updates more frequently!</p>
-    <p>To see the effect of the cases, we set <code>n=60</code>, which is the currently commonly using frame rates of some mobile phones.</p>
-    <p>We would change <code>cx+=60;</code> to <code>cx+=60*1/n;</code>, also change <code>cy+=30;</code> to <code>cy+=30*1/n;</code>, and the <code>setInterval()</code> time changes from <code>1000</code> to <b>1000/n</b>,indicates we want to update the function per <b>1/n</b> seconds.</p>
-    <p>So why would we change <code>cx+=60;</code> to <code>cx+=60*1/n;</code>, instead of simply change to <code>cx+=60/n;</code>? Because <code>cx+=60*1/n;</code> is more similar to the physics equation, easier to understand what it is:</p>
-    <ul>
-      <li>distance = velocity * time</li>
-    </ul> 
-    <p>At the canvas update code, it becomes:</p>
-    <ul>
-      <li>px moved = velocity * time elasped</li>
-    </ul>
-    <p>At our case, <code>cx</code> it becomes (similar for <code>cy</code>):</p> 
-    <ul>
-      <li>px moved = 60 * 1/n</li>
-    </ul>
-    <p>Which the time elapsed is 1/n. So at former examples, why is just <code>cx+=60;</code> instead of something like <code>cx+=60*time;</code>? Because at earier examples, we update the canvas per 1 second, which the time equals to 1 actually, so the x distance traveled (<code>cx</code> increased) is <b>60*1</b> and is numerically equals to adding the velocity <b>60</b> directly! Now we would set a different time. First, refactor the code as the following:</p>
+    <p>However, we want to <b>update the canvas more frequently</b>! When the canvas is updated more frequently, the description above is changed according to the table below:</p>
+    <table border="1" style="margin-left:auto;margin-right:auto;">
+      <tr>
+        <td>update </td><td><b>once</b></td><td>per </td><td><b>1</b></td><td> second, <code>cx</code> increases</td><td><b>60</b></td><td> px and <code>cy</code> increases</td><td><b>30<b/></td><td>px at each update</td>
+      </tr>
+      <tr>
+        <td>update </td><td><b>twice</b></td><td>per </td><td><b>0.5</b></td><td> seconds, <code>cx</code> increases</td><td><b>30</b></td><td> px and <code>cy</code> increases</td><td><b>15<b/></td><td>px at each update</td>
+      </tr>
+      <tr>
+        <td>update </td><td><b>3 times</b></td><td>per </td><td><b>1/3</b></td><td> seconds, <code>cx</code> increases</td><td><b>20</b></td><td> px and <code>cy</code> increases</td><td><b>10<b/></td><td>px at each update</td>
+      </tr>
+      <tr>
+        <td colspan="9">...</td>
+      </tr>
+      <tr>
+        <td>update </td><td><b>60 times</b></td><td>per </td><td><b>1/60</b></td><td> seconds, <code>cx</code> increases</td><td><b>1</b></td><td> px and <code>cy</code> increases</td><td><b>0.5<b/></td><td>px at each update</td>
+      </tr>
+      <tr>
+        <td colspan="9">...</td>
+      </tr>
+      <tr>
+        <td>update </td><td><b>n times</b></td><td>per </td><td><b>1/n</b></td><td> seconds, <code>cx</code> increases</td><td><b>60 * 1/n</b></td><td> px and <code>cy</code> increases</td><td><b>30 * 1/n<b/></td><td>px at each update</td>
+      </tr>
+    </table>
+    <p>While all the cases above have a common property : after <b>1 second</b>, <code>cx</code> would finally increase <b>60</b> and <code>cy</code> would finally increase <b>30</b>, the cases at the bottom of the table <b>update the canvas more frequently but cx and cy increases less</b>! <b>That is the concept of increasing frame rate : While keeping the visual moving velocity unchanged, the canvas updates more frequently but cx and cy increase less, n is actually the frame rate of the canvas</b>!</p>
+    <p>Now we may continue our coding! We would <b>create a new variable for n, but with more meaningful name</b>, <code>frameRate</code>:</p>
+    <div class="codeParentDiv" style="height:4em"><div class="hljs readborder" style="position:absolute;"><pre><code><span class="hl">const frameRate = 1;</span></code></pre></div></div>
+    <p><code>cx += 60;</code> is actually the case that <b>n</b> equals to 1, so we set <code>frameRate</code> as <b>1</b> initally to match the case before. To apply the concept of frame rate above, we would change <code>cx += 60;</code> to <code>cx += 60 * 1/n;</code>, also change <code>cy += 30;</code> to <code>cy += 30 * 1/n;</code>, and the <code>setInterval()</code> time changes from <code>1000</code> to <b>1000/n</b>, indicates we want to update the function in <code>setInterval()</code> per <b>1/n</b> seconds, so the modified canvas code would look like the following:</p>
+    <div class="codeParentDiv" style="height:14em"><div class="hljs readborder" style="position:absolute;"><pre><code><span class="hl">.
+.
+.
+setInterval(function(){
+  .
+  cx += 60 * 1/frameRate;
+  cy += 30 * 1/frameRate;
+  .
+  .
+  .
+},1000/frameRate);</span></code></pre></div></div>
+    <p>So why would we change <code>cx += 60;</code> to <code>cx += 60 * 1/n;</code>, instead of simply change to <code>cx += 60/n;</code>? Because <code>1/n</code> reminds us <b>n</b> is actually the frame rate.</p>
+    <p>To apply the changes above, modify the codes of the canvas as the following:</p>
     <div class="codeParentDiv" style="height:38em"><div class="hljs copyborder" style="position:absolute;">
         <pre><code><span class="hl">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
 &lt;script&gt;</span>
@@ -357,8 +373,11 @@
           <code class="dimcode">&nbsp;</code>
         </div>
     </div></div>
-    <p>When we run the code above, it should show the result the same as the version before refactoring. But now, we added a new variable <code>frameRate</code>, which we are ready to change it from 1 to 60 later. As mentioned before, <code>60*1/frameRate</code> means velocity*time, and <code>1000/frameRate</code> means 'Update <code>frameRate</code> times per second'.</p>
-    <p>So after talking a lot about frame rates, we can finally get a smoother animation by changing the time from <b>1</b> to <b>60</b> : modify the code as the following:</p>
+    <p>When we run the code above, it should show the result the same as the version before refactoring:</p>
+    <iframe id="iframe-chapter_3_3_1-1" class="center" src="chapter_3_3_1.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <br/><button class="center" onclick="document.getElementById('iframe-chapter_3_3_1-1').src+='';">Reload</button>
+    <p>But now, we added a new variable <code>frameRate</code>, which is ready to show a smoother moving rectangle. As a reminder, <code>frameRate</code> means '<b>Update frameRate times per second</b>' and <code>1/frameRate</code> is time elapsed, hence <code>60 * 1/frameRate</code> is actually <b>velocity * time</b>.</p>
+    <p>So after talking a lot about frame rates, we can finally get a smoother animation by changing the <code>frameRate</code> from <b>1</b> to <b>60</b>! Modify the code as the following:</p>
     <div class="codeParentDiv" style="height:39em"><div class="hljs copyborder" style="position:absolute;">
         <pre><code><span class="hl">&lt;canvas id=&quot;myCanvas&quot; width=&quot;400px&quot; height=&quot;400px&quot;&gt&lt/canvas&gt;
 &lt;script&gt;</span>
@@ -437,8 +456,8 @@
         </div>
     </div></div>
     <p>Now the canvas should show a smooth moving circle as the following:</p>
-    <iframe id="iframe-chapter_3_3_1-1" class="center" src="chapter_3_3_1.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
-    <br/><button class="center" onclick="document.getElementById('iframe-chapter_3_3_1-1').src+='';">Reload</button>
+    <iframe id="iframe-chapter_3_3_2-1" class="center" src="chapter_3_3_2.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+    <br/><button class="center" onclick="document.getElementById('iframe-chapter_3_3_2-1').src+='';">Reload</button>
     <p>So to conclude, to keep the velocity unchanged but get a smoother animation, the key is to move less at each time but update more frequenty. The following shows the frame rate <b>1</b> and <b>60</b>, which you may see the difference more clearly:</p>
     <table border="1" style="margin-left:auto;margin-right:auto;">
       <tr>
@@ -450,11 +469,11 @@
           <iframe id="iframe-chapter_3_2_1-2" src="chapter_3_2_1.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
         </td>
         <td>
-          <iframe id="iframe-chapter_3_3_1-2" src="chapter_3_3_1.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
+          <iframe id="iframe-chapter_3_3_2-2" src="chapter_3_3_2.html" width="400px" height="400px" frameBorder="0" marginheight="0" marginwidth="0"></iframe>
         </td>
       </tr>
     </table>
-    <br/><button class="center" onclick="document.getElementById('iframe-chapter_3_2_1-2').src+='';document.getElementById('iframe-chapter_3_3_1-2').src+='';">Reload</button>
+    <br/><button class="center" onclick="document.getElementById('iframe-chapter_3_2_1-2').src+='';document.getElementById('iframe-chapter_3_3_2-2').src+='';">Reload</button>
     <hr class="hr1"/>
     <h2 id="section_4">3.4 Refactor the code : extract all properties of circles as variables</h2>
     <p>At the examples above, we may conclude that a circle have the following properties:</p>
